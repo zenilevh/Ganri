@@ -11,6 +11,8 @@ const theme = {
     tonalOffset: 0.2,
     primary: {
       main: '#50A1D8',
+      blue: 'blue',
+      red: 'red',
       dark: 'black',
     },
     success: {
@@ -108,8 +110,6 @@ const theme = {
     },
   },
   logo: {
-    maxHeight: ({ sidebar }) => sidebar.width,
-    maxWidth: ({ sidebar }) => sidebar.width,
     gutter: '2px',
   },
   rightPanel: {
