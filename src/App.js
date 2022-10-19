@@ -1,22 +1,17 @@
 import './App.css';
-import React, { useState } from 'react';
-import {
-  BrowserRouter as Router, Route,
-} from 'react-router-dom';
+import React from 'react';
+
 // import UnauthorizedCallback from './pages/UnauthorizedCallback';
 import Docs from './pages/Docs';
 import VersionSelector from './Components/VersionSelector';
 
-
-const App = () => {
-  const [isAuthorized, setIsAuthorized] = useState(true);
-
+function App() {
   return (
     <div className="App">
       <VersionSelector />
-      <Docs isAuthorized={isAuthorized} setIsAuthorized={setIsAuthorized} />
+      <Docs />
     </div>
   );
-};
+}
 
 export default App;

@@ -1,11 +1,12 @@
 import React from 'react';
 import { RedocStandalone } from 'redoc';
-import PropTypes from 'prop-types';
 import paperTheme from '../../theme/theme';
-import V1 from '../../Data/v1.yaml'
+import V1 from '../../Data/v1.yaml';
+import './Docs.css';
+// import mockSpec from '../../MockSpecData/specTemplate.yaml';
+// import mockSpecTemp from '../../MockSpecData/spec.yaml';
 
-const Docs = () => {
-
+function Docs() {
   return (
     <div>
       <div>
@@ -19,11 +20,6 @@ const Docs = () => {
       </div>
     </div>
   );
-};
-
-Docs.propTypes = {
-  isAuthorized: PropTypes.bool.isRequired,
-  setIsAuthorized: PropTypes.func.isRequired,
-};
+}
 
 export default Docs;

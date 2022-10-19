@@ -1,0 +1,46 @@
+/* Sidenav Searchbar */
+div[role="search"] {
+    align-items: center;
+    background-color: #FFF;
+    background-position: 12px center;
+    background-repeat: no-repeat;
+    border: 1px solid #DEE3EE;
+    border-radius: 8px;
+    display: flex;
+    height: 35px;
+    margin-bottom: 12px;
+    margin-left: 16px;
+    padding: 8px 12px 8px 36px;
+    position: relative;
+    width: calc(100% - 32px);
+}
+
+div[role="search"] > input {
+    border: none;
+    margin-left: -19px;
+}
+
+.menu-content {
+    position: sticky !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    backface-visibility: hidden;
+}
+  
+  
+  /* div[role="search"] i, */
+  /* div[role="search"] svg {
+
+  } */
+div[role=search]>div {
+    background-color: #fff;
+    border: 1px solid #dee3ee;
+    border-radius: 8px;
+    left: 0;
+    padding: 8px 0;
+    position: absolute;
+    top: calc(100% + 8px);
+    width: 100%;
+    z-index: 1;
+}
