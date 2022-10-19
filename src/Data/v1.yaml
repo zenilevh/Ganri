@@ -1,0 +1,5443 @@
+---
+swagger: "2.0"
+# info will be displayed on first page
+info:
+  x-logo:
+    url: "https://paper.id/img/paperlogofinal.svg"
+    backgroundColor: "#FFFFFF"
+    altText: "Paper id logo"
+    href: "https://paper.id"
+
+  description: |
+    # Introduction
+    This API consists of Paper API endpoint services of Account Aggregation and Verification for both sandbox and production purposes.
+
+    # Prerequisites
+    API key and Client ID required in every request, to get these key :
+
+    | Environment      | URL                                                                                             |
+    |------------------|-------------------------------------------------------------------------------------------------|
+    | Production       | <a href='https://----/settings/api'>Dashboard API Settings</a>                      |
+    | Sandbox          | <a href='https://------/settings/api'>Sandbox Dashboard API Settings</a>      |
+
+    Or you can find it in e-mail with subject <strong>“Welcome to Paper id”</strong> on your inbox
+
+    # Signature
+    Paper id API utilizes signatures, ensure the data sent are real and cannot be tampered. Signatures are generated from the app user and verified by the app receiver.
+
+    Signatures are formed from the specified payload, with implementing SHA256-HMAC algorithm with Base64-encrypted secret as their key. The end result will be put on the `Signature` attribute on the header request.
+
+    # Host
+    | Environment | API url                      |
+    |-------------|------------------------------|
+    | Sandbox     | https://api.----.io |
+    | Production  | https://api.----.io         |
+
+  version: "1.0.0"
+  title: "Paper id API Docs"
+
+servers:
+  - url: //api.-----.io
+    description: Production server
+  - url: //api.sandbox.-----.io/
+    description: Sandbox server
+
+x-tagGroups:
+  - name: Authentication - Generate Token
+    tags:
+      - Generate Token
+  - name: Sandbox
+    tags:
+      - Sample Data
+  - name: Identity Verification
+    tags:
+      - KYC
+      - Bank Validator
+      - KTP Validator
+      - NPWP Validator
+      - KYC Result
+  - name: Account Aggregations
+    tags:
+      - Account Statement
+      - Aggregation Result
+
+tags:
+  - name: "Sample Data"
+    description: |
+      ### Note: Only in sandbox environment
+      ## Customer Sample Data
+      ### Customer
+      | key              | value                 | description                                                       |
+      |------------------|-----------------------|-------------------------------------------------------------------|
+      | id               | 1                     | Number                                                            |
+      | id_no            | 3603199383760002      | String, 16-digit identification number/KTP                        |
+      | npwp             | 87569234569           | String, 15-digit tax identification number / NPWP without symbols |
+      | name             | Galih Hardiyan        | String, Full name                                                 |
+      | bank_accounts    | _See table below_     |                                                                   |
+
+      ### bank_accounts:
+      | key              | value                 | description                                                       |
+      |------------------|-----------------------|-------------------------------------------------------------------|
+      | account          | _See table below_     |                                                                   |
+      | transaction      | _See table below_     |                                                                   |
+
+      ### account:
+      | key              | value                 | description                                                       |
+      |------------------|-----------------------|-------------------------------------------------------------------|
+      | id               | 22                    | Number                                                            |
+      | customer_id      | 1                     | Number                                                            |
+      | provider_id      | 1                     | Number                                                            |
+      | provider_code    | bca                   | String, Bank codes: [bca, mandiri]                                |
+      | branch           | KCP Pratama           | String                                                            |
+      | account_name     | Galih Hardiyan        | String, Full name                                                 |
+      | account_no       | 12345678              | String, Bank account number                                       |
+      | balance          | 1002000               | Number                                                            |
+      | username         | galihhardiyan123      | String                                                            |
+      | pin              | 1234                  | String                                                            |
+
+      ### transaction:
+      | key              | value                 | description                                                       |
+      |------------------|-----------------------|-------------------------------------------------------------------|
+      | id               | 1                     | UUID                                                              |
+      | account_id       | 5                     | UUID                                                              |
+      | type             | C                     | String, Mutation code                                             |
+      | info             | Bayar                 | String                                                            |
+      | mutation         | 2000                  | Number                                                            |
+      | transaction_dt   | 02/11/2021            | String, DD/MM/YYYY                                                |
+
+  - name: "Generate Token"
+    description: "Generate token with X-Api-Key and X-Client-ID"
+  - name: "KYC"
+    description: "Verify the information requested such as Identity, Personal Income, Company Income, Shareholder, Negative Records, Phone Number, Phone Lifespan, Phone Count, Home Address and/or Work Address. You can also get the remaining limits of the verifications"
+  - name: "Account Statement"
+    description: "Access various statements through Paper id API"
+
+schemes:
+  - "https"
+
+paths:
+  # /sandbox/v1/customer:
+  #   get:
+  #     tags:
+  #       - "Sample Data"
+  #     summary: "Get all customers sample data"
+  #     description: "Obtain every available customer data on sandbox environment"
+  #     operationId: "get_customer"
+  #     produces:
+  #       - "application/json"
+  #     parameters:
+  #       - name: Authorization
+  #         in: header
+  #         description: "Static token 'token-admin'"
+  #         example: token=token-admin
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       200:
+  #         description: "successful operation"
+  #         schema:
+  #           $ref: "#/definitions/ApiResponseGetCustomer"
+  #       403:
+  #         description: "Unauthorized access"
+  #         schema:
+  #           $ref: "#/definitions/errorResponse403"
+  #       404:
+  #         description: "Data not found"
+  #         schema:
+  #           $ref: "#/definitions/errorResponse404"
+  #     x-codeSamples:
+  #       - lang: "cURL"
+  #         source: |
+  #           curl --location --request GET "https://api.sandbox.ftier.io/sandbox/v1/customer" \
+  #           --header "token: token=token-admin" \
+  #           --data-raw ""
+  #       - lang: "Javascript"
+  #         source: |
+  #           var myHeaders = new Headers();
+  #           myHeaders.append("token", "token=token-admin");
+
+  #           var raw = "";
+
+  #           var requestOptions = {
+  #             method: 'GET',
+  #             headers: myHeaders,
+  #             body: raw,
+  #             redirect: 'follow'
+  #           };
+
+  #           fetch("https://api.sandbox.ftier.io/sandbox/v1/customer", requestOptions)
+  #             .then(response => response.text())
+  #             .then(result => console.log(result))
+  #             .catch(error => console.log('error', error));
+  #       - lang: "PHP"
+  #         source: |
+  #           <?php
+
+  #            $curl = curl_init();
+
+  #            curl_setopt_array($curl, array(
+  #              CURLOPT_URL => 'https://api.sandbox.ftier.io/sandbox/v1/customer',
+  #              CURLOPT_RETURNTRANSFER => true,
+  #              CURLOPT_ENCODING => '',
+  #              CURLOPT_MAXREDIRS => 10,
+  #              CURLOPT_TIMEOUT => 0,
+  #              CURLOPT_FOLLOWLOCATION => true,
+  #              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  #              CURLOPT_CUSTOMREQUEST => 'GET',
+  #              CURLOPT_HTTPHEADER => array(
+  #                'token: token=token-admin'
+  #              ),
+  #            ));
+
+  #            $response = curl_exec($curl);
+
+  #            curl_close($curl);
+  #            echo $response;
+
+  # /sandbox/v1/customer?id={id}:
+  #   get:
+  #     tags:
+  #       - "Sample Data"
+  #     summary: "Get detailed customer sample data"
+  #     description: "Obtain detailed customer data on sandbox environment"
+  #     operationId: "get_customer_by_id"
+  #     produces:
+  #       - "application/json"
+  #     parameters:
+  #       - name: Authorization
+  #         in: header
+  #         description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+  #         example: token=token
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: id
+  #         in: path
+  #         description: ID of customer to return
+  #         required: true
+  #         schema:
+  #           type: integer
+  #           format: number
+
+  #     responses:
+  #       200:
+  #         description: "successful operation"
+  #         schema:
+  #           $ref: "#/definitions/ApiResponseGetCustomerById"
+  #       403:
+  #         description: "Forbidden"
+  #         schema:
+  #           $ref: "#/definitions/errorResponse403"
+  #       404:
+  #         description: "Data not found"
+  #         schema:
+  #           $ref: "#/definitions/errorResponse404"
+  #     x-codeSamples:
+  #       - lang: "cURL"
+  #         source: |
+  #          curl --location -g --request GET "https://api.sandbox.ftier.io/sandbox/v1/customer?id={id}" \
+  #          --header "token: token=token-admin" \
+  #          --data-raw ""
+  #       - lang: "Javascript"
+  #         source: |
+  #           var myHeaders = new Headers();
+  #           myHeaders.append("token", "token=token");
+
+  #           var raw = "";
+
+  #           var requestOptions = {
+  #             method: 'GET',
+  #             headers: myHeaders,
+  #             body: raw,
+  #             redirect: 'follow'
+  #           };
+
+  #           fetch("https://api.sandbox.ftier.io/sandbox/v1/customer?id={id}", requestOptions)
+  #             .then(response => response.text())
+  #             .then(result => console.log(result))
+  #             .catch(error => console.log('error', error));
+  #       - lang: "PHP"
+  #         source: |
+  #           <?php
+
+  #           $curl = curl_init();
+
+  #           curl_setopt_array($curl, array(
+  #             CURLOPT_URL => 'https://api.sandbox.ftier.io/sandbox/v1/customer?id=%7Bid%7D',
+  #             CURLOPT_RETURNTRANSFER => true,
+  #             CURLOPT_ENCODING => '',
+  #             CURLOPT_MAXREDIRS => 10,
+  #             CURLOPT_TIMEOUT => 0,
+  #             CURLOPT_FOLLOWLOCATION => true,
+  #             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  #             CURLOPT_CUSTOMREQUEST => 'GET',
+  #             CURLOPT_HTTPHEADER => array(
+  #               'token: token=token-admin'
+  #             ),
+  #           ));
+
+  #           $response = curl_exec($curl);
+
+  #           curl_close($curl);
+  #           echo $response;
+
+  /auth/v1/generate-token:
+    post:
+      tags:
+        - "Generate Token"
+      summary: "Generate token with X-Api-Key and X-Client-ID."
+      description: "Token in the response will be used on every other API operations. To get X-Api-Key and X-Client-ID, please refer to <a href='#section/Prerequisites'>Prerequisites</a> "
+      operationId: "generate-token"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: X-Api-Key
+          in: header
+          description: "External API Key provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          example: ey119kf-91A9Es-...
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                X-Client-ID:
+                  description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>."
+                  type: string
+              required:
+                - X-Client-ID
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseGenerateToken"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location --request POST "https://api.sandbox.ftier.io/auth/v1/generate-token" \
+            --header "X-Api-Key: [x-api-key]" \
+            --header "datetime: [DD-MM-YYYY hh:mm:ss]" \
+            --header "signature: [signature]" \
+            --header "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "X-Client-ID=[x-client-id]"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("X-Api-Key", "[x-api-key]");
+            myHeaders.append("datetime", "[DD-MM-YYYY hh:mm:ss]");
+            myHeaders.append("signature", "[signature]");
+            myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+            var urlencoded = new URLSearchParams();
+            urlencoded.append("X-Client-ID", "[x-client-id]");
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: urlencoded,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.sandbox.ftier.io/auth/v1/generate-token", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.sandbox.ftier.io/auth/v1/generate-token',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS => 'X-Client-ID=%5Bx-client-id%5D',
+              CURLOPT_HTTPHEADER => array(
+                  'X-Api-Key: [x-api-key]',
+                  'datetime: [DD-MM-YYYY hh:mm:ss]',
+                  'signature: [signature]',
+                  'Content-Type: application/x-www-form-urlencoded'
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+
+  /kyc/v1/remaining-limit:
+      get:
+        tags:
+          - "KYC"
+        summary: "Get Remaining Limit"
+        description: "Get remaining limits of verifications."
+        operationId: "kyc-get-remaining-limit"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponseGetRemainingLimit"
+          400:
+            description: "Invalid request"
+            schema:
+              $ref: "#/definitions/errorResponse400"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Data not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location -g --request GET 'https://api.ftier.io/kyc/v1/remaining-limit' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var requestOptions = {
+                method: 'GET',
+                headers: myHeaders,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/kyc/v1/remaining-limit", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/kyc/v1/remaining-limit',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+
+  /kyc/v1/verify/identity-basic:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Identity Basic"
+      description: "Verify identity of a person with NIK, registered name, address, birth place, and birth date."
+      operationId: "kyc-verify-identity-basic"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "Johan Nathan"
+                address:
+                  description: "Address as specified on registered KTP"
+                  type: string
+                  example: "Bandung Selatan gg.03"
+                birthdate:
+                  description: "Birth date as specified on registered KTP, DD-MM-YYYY format"
+                  type: string
+                  example: "03-09-1873"
+                birthplace:
+                  description: "Birth place as specified on registered KTP"
+                  type: string
+                  example: "Bandung"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseIdentityBasic"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/identity-basic" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+                "selfie_photo": "QVR4nGy8V5MdR5YmeIS7R1yVWiMhCUJQAFTNqhrVM7a9Wzs2M2v9...",
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+              "nik": "382xxxxxxxxxxx54",
+              "name": "Johan Nathan",
+              "address": "Bandung Selatan gg.03",
+              "birthdate": "03-09-1873",
+              "birthplace": "Bandung",
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/identity-basic", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/identity-basic',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/identity-professional:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Identity Professional"
+      description: "Verify identity of a person with NIK, registered name, address, birth place, birth date, and selfie."
+      operationId: "kyc-verify-identity-professional"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "Johan Nathan"
+                address:
+                  description: "Address as specified on registered KTP"
+                  type: string
+                  example: "Bandung Selatan gg.03"
+                birthdate:
+                  description: "Birth date as specified on registered KTP, DD-MM-YYYY format"
+                  type: string
+                  example: "03-09-1873"
+                birthplace:
+                  description: "Birth place as specified on registered KTP"
+                  type: string
+                  example: "Bandung"
+                selfie_photo:
+                  description: "JPEG, JPG, PNG, or SVG Base64 format without `data:image/png;base64,`"
+                  type: string
+                  example: "QVR4nGy8V5MdR5YmeIS7R1yVWiMhCUJQAFTNqhrVM7a9Wzs2M2v9..."
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseIdentityProfessional"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/identity-professional" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+                "selfie_photo": "QVR4nGy8V5MdR5YmeIS7R1yVWiMhCUJQAFTNqhrVM7a9Wzs2M2v9...",
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+              "nik": "382xxxxxxxxxxx54",
+              "name": "Johan Nathan",
+              "address": "Bandung Selatan gg.03",
+              "birthdate": "03-09-1873",
+              "birthplace": "Bandung",
+              "selfie_photo": "QVR4nGy8V5MdR5YmeIS7R1yVWiMhCUJQAFTNqhrVM7a9Wzs2M2v9..."
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/identity-professional", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/identity-professional',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+                "selfie_photo": "QVR4nGy8V5MdR5YmeIS7R1yVWiMhCUJQAFTNqhrVM7a9Wzs2M2v9..."
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/income-basic:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Income Basic"
+      description: "Verify a person's income by NIK to check whether it is below, in range, or above specified number and check whether the NIK is match with NPWP"
+      operationId: "kyc-verification-income"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                  required: true
+                npwp:
+                  description: "Registered NPWP number"
+                  type: string
+                  example: "382xxxxxxxxxx54"
+                  required: true
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "Johan Nathan"
+                  required: true
+                income:
+                  description: "Income per months to later be compared with real data"
+                  type: integer
+                  example: 6000000
+                  required: true
+                birthdate:
+                  description: "Birth date as specified on registered KTP"
+                  type: string
+                  example: "03-09-1873"
+                  required: true
+                birthplace:
+                  description: "Birth place as specified on registered KTP"
+                  type: string
+                  example: "Bandung"
+                  required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseIncomeBasic"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/income-basic" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                "nik": "382xxxxxxxxxxx54",
+                "npwp": "382xxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+              "nik": "382xxxxxxxxxxx54",
+              "npwp": "382xxxxxxxxxx54",
+              "name": "Johan Nathan",
+              "address": "Bandung Selatan gg.03",
+              "birthdate": "03-09-1873",
+              "birthplace": "Bandung",
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/income-basic", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/income-basic',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                "nik": "382xxxxxxxxxxx54",
+                "npwp": "382xxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/income-by-nik:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Income by NIK"
+      description: "Verify a person's income by NIK whether it is below, in range, or above specified number"
+      operationId: "kyc-verification-income-by-nik"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                  required: true
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "Johan Nathan"
+                  required: true
+                income:
+                  description: "Income per months to later be compared with real data"
+                  type: integer
+                  example: 6000000
+                  required: true
+                birthdate:
+                  description: "Birth date as specified on registered KTP"
+                  type: string
+                  example: "03-09-1873"
+                  required: true
+                birthplace:
+                  description: "Birth place as specified on registered KTP"
+                  type: string
+                  example: "Bandung"
+                  required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseIncomeByNIK"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Identity not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/income-by-nik" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+              "nik": "382xxxxxxxxxxx54",
+              "name": "Johan Nathan",
+              "address": "Bandung Selatan gg.03",
+              "birthdate": "03-09-1873",
+              "birthplace": "Bandung",
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/income-by-nik", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/income-by-nik',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "address": "Bandung Selatan gg.03",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung",
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/company-income:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Company Income"
+      description: "Verify whether the company NPWP is correct and check whether the company income given by the owner matches the tax database"
+      operationId: "kyc-verification-company-income"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company_npwp:
+                  description: "Corresponding company NPWP"
+                  type: string
+                  example: "60xxxxxxxxxxxx2"
+                  required: true
+                income:
+                  description: "Expected company income per months"
+                  type: integer
+                  example: 100000000000
+                  required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseCompanyIncome"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/company-income' \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw '{
+                    "company_npwp": "60xxxxxxxxxxxx2",
+                    "income": 100000000000
+            }'
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "company_npwp": "60xxxxxxxxxxxx2",
+                "income": 100000000000
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/company-income", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/company-income',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                "company_npwp": "60xxxxxxxxxxxx2",
+                "income": 100000000000
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/shareholder:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Shareholder"
+      description: "Verify that a shareholder exists, the company name matches NPWP, and the shareholder's name matches the company NPWP in the company's tax records."
+      operationId: "kyc-verification-shareholder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company_npwp:
+                  description: "Corresponding company NPWP"
+                  type: string
+                  example: "60xxxxxxxxxxxx2"
+                  required: true
+                company_name:
+                  description: "Company name"
+                  type: string
+                  example: "PT ABB Sentosa"
+                  required: true
+                nik:
+                  description: "NIK of the Shareholder"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                  required: true
+                name:
+                  description: "Shareholder Name"
+                  type: string
+                  example: "Johan Nathan"
+                  required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseShareholder"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/shareholder' \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw '{
+                    "company_npwp": "60xxxxxxxxxxxx2",
+                    "company_name": "PT ABB Sentosa",
+                    "nik": "382xxxxxxxxxxx54",
+                    "name": "Johan Nathan",
+            }'
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "company_npwp": "60xxxxxxxxxxxx2",
+                "company_name": "PT ABB Sentosa",
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/shareholder", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/shareholder',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                "company_npwp": "60xxxxxxxxxxxx2",
+                "company_name": "PT ABB Sentosa",
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/phone-number:
+      post:
+        tags:
+          - "KYC"
+        summary: "Verify Phone Number"
+        description: "Verify a person's phone number with corresponding NIK"
+        operationId: "kyc-verification-phone-number"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nik:
+                    description: "Registered NIK number"
+                    type: string
+                    example: "382xxxxxxxxxxx54"
+                  phone_number:
+                    description: "Phone number corresponds to the NIK, ALWAYS starting with `62..`"
+                    type: string
+                    example: "62896xxxxxxx76"
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponsePhoneNumber"
+          400:
+            description: "Invalid request"
+            schema:
+              $ref: "#/definitions/errorResponse400"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Phone not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/phone-number' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+              --data-raw '{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+              }'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "phone_number": "62896xxxxxxx76",
+              });
+
+              var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/kyc/v1/verify/phone-number", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/phone-number',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+              }',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+  /kyc/v1/verify/phone-lifespan:
+      post:
+        tags:
+          - "KYC"
+        summary: "Verify Phone Lifespan"
+        description: "Verify a person's phone number age with corresponding NIK. `lifespan` Value ranges from 0-4, intervalling 3 months ownership per step (`1` means less than 3 months ownership)"
+        operationId: "kyc-verification-phone-lifespan"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nik:
+                    description: "Registered NIK number"
+                    type: string
+                    example: "382xxxxxxxxxxx54"
+                  phone_number:
+                    description: "Phone number corresponds to the NIK, ALWAYS starting with `62..`"
+                    type: string
+                    example: "62896xxxxxxx76"
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponsePhoneLifespan"
+          400:
+            description: "Invalid request"
+            schema:
+              $ref: "#/definitions/errorResponse400"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Phone not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/phone-lifespan' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+              --data-raw '{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+              }'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "phone_number": "62896xxxxxxx76",
+              });
+
+              var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/kyc/v1/verify/phone-lifespan", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/phone-lifespan',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+              }',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+
+  /kyc/v1/verify/phone-count:
+      post:
+        tags:
+          - "KYC"
+        summary: "Verify Phone Count"
+        description: "Verify how much phone number individual has registered with the NIK."
+        operationId: "kyc-verification-phone-count"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nik:
+                    description: "Registered NIK number"
+                    type: string
+                    example: "382xxxxxxxxxxx54"
+                  phone_number:
+                    description: "Phone number corresponds to the NIK, ALWAYS starting with `62..`"
+                    type: string
+                    example: "62896xxxxxxx76"
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponsePhoneCount"
+          400:
+            description: "Invalid request"
+            schema:
+              $ref: "#/definitions/errorResponse400"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Data not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/phone-count' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+              --data-raw '{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+              }'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "phone_number": "62896xxxxxxx76",
+              });
+
+              var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/kyc/v1/verify/phone-count", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/phone-count',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+              }',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+  /kyc/v1/verify/home-address:
+      post:
+        tags:
+          - "KYC"
+        summary: "Verify Home Address"
+        description: "Verify a person's home address with corresponding phone number. Telkomsel only"
+        operationId: "kyc-verification-home-address"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nik:
+                    description: "Registered NIK number"
+                    type: string
+                    example: "382xxxxxxxxxxx54"
+                  phone_number:
+                    description: "Phone number corresponds to the NIK, ALWAYS starting with `62..`"
+                    type: string
+                    example: "62896xxxxxxx76"
+                  address:
+                    description: "Complete address as specified on registered KTP (Domisili, RT/RW, postal code, etc.)"
+                    type: string
+                    example: "Bandung Selatan gg.03"
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponseHomeAddress"
+          400:
+            description: "Invalid request"
+            schema:
+              $ref: "#/definitions/errorResponse400"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Data not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/home-address' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+              --data-raw '{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+                  "address": "Bandung Selatan gg.03",
+              }'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "phone_number": "62896xxxxxxx76",
+                "address": "Bandung Selatan gg.03",
+              });
+
+              var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/kyc/v1/verify/home-address", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/home-address',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+                  "address": "Bandung Selatan gg.03",
+              }',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+  /kyc/v1/verify/work-address:
+      post:
+        tags:
+          - "KYC"
+        summary: "Verify Work Address"
+        description: "Verify a person's work address with corresponding phone number. Telkomsel only"
+        operationId: "kyc-verification-work-address"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nik:
+                    description: "Registered NIK number"
+                    type: string
+                    example: "382xxxxxxxxxxx54"
+                  phone_number:
+                    description: "Phone number corresponds to the NIK, ALWAYS starting with `62..`"
+                    type: string
+                    example: "62896xxxxxxx76"
+                  work_address:
+                    description: "Complete work address corresponds to the NIK (Domisili, RT/RW, postal code, etc.)"
+                    type: string
+                    example: "Bandung Selatan gg.03"
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponseWorkAddress"
+          400:
+            description: "Invalid request"
+            schema:
+              $ref: "#/definitions/errorResponse400"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Data not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/work-address' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+              --data-raw '{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+                  "work_address": "Bandung Selatan gg.03",
+              }'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "phone_number": "62896xxxxxxx76",
+                "work_address": "Bandung Selatan gg.03",
+              });
+
+              var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/kyc/v1/verify/work-address", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/work-address',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "phone_number": "62896xxxxxxx76",
+                  "work_address": "Bandung Selatan gg.03",
+              }',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+  /kyc/v1/verify/negative-list:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Negative List"
+      description: "Verify whether a person has a negative record. DATA NOT FOUND proven that the NIK is not found in criminal database"
+      operationId: "kyc-verification-negative-list"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "Johan Nathan"
+                birthdate:
+                  description: "Birth date as specified on registered KTP, DD-MM-YYYY format"
+                  type: string
+                  example: "03-09-1873"
+                birthplace:
+                  description: "Birth place as specified on registered KTP"
+                  type: string
+                  example: "Bandung"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseNegativeList"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/negative-list' \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw '{
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung"
+            }'
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan",
+                "birthdate": "03-09-1873",
+                "birthplace": "Bandung"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/negative-list", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/negative-list',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                    "nik": "382xxxxxxxxxxx54",
+                    "name": "Johan Nathan",
+                    "birthdate": "03-09-1873",
+                    "birthplace": "Bandung"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/family-card:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Family Card"
+      description: "Verify whether corresponding NIK is in the family card specified (KK)"
+      operationId: "kyc-verification-family-card"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                family_id:
+                  description: "Registered KK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseFamilyCard"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/family-card' \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw '{
+                "nik": "382xxxxxxxxxxx54",
+                "family_id": "382xxxxxxxxxxx54"
+            }'
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "family_id": "382xxxxxxxxxxx54"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/family-card", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/family-card',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                    "nik": "382xxxxxxxxxxx54",
+                    "family_id": "382xxxxxxxxxxx54"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/mother-name:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Mother Name"
+      description: "Verify the mother's name of corresponding individual"
+      operationId: "kyc-verification-mother-name"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                mother_name:
+                  description: "Corresponding mother name"
+                  type: string
+                  example: "Anan Anda"
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseMotherName"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/mother-name' \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw '{
+                "nik": "382xxxxxxxxxxx54",
+                "mother_name": "Anan Anda"
+            }'
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "mother_name": "Anan Anda"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/mother-name", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/mother-name',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                    "nik": "382xxxxxxxxxxx54",
+                    "mother_name": "Anan Anda"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/email:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Email"
+      description: "Verify the email of corresponding individual"
+      operationId: "kyc-verification-email"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                email:
+                  description: "Corresponding email"
+                  type: string
+                  example: "jo*********@mail.com"
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseEmail"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST 'https://api.ftier.io/kyc/v1/verify/email' \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw '{
+                "nik": "382xxxxxxxxxxx54",
+                "email": "jo*********@mail.com"
+            }'
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "email": "jo*********@mail.com"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/email", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/email',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                    "nik": "382xxxxxxxxxxx54",
+                    "email": "jo*********@mail.com"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/bank-account:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Bank Account"
+      description: "Verify individuals bank account based on NIK and account information."
+      operationId: "kyc-verify-bank-account"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                bank_code:
+                  description: "Registered bank code number"
+                  type: string
+                  example: "014"
+                account_number:
+                  description: "Individual account bank number"
+                  type: string
+                  example: "1234567890123456"
+                account_name:
+                  description: "Individual bank account holder"
+                  type: string
+                  example: "john doe"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseBankAccount"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/bank-account" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "nik": "382xxxxxxxxxxx54",
+                  "bank_code": "014",
+                  "account_number": "6xxxxxxxx5",
+                  "account_name": "Johan Nathan"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "bank_code": "014",
+                "account_number": "6xxxxxxxx5",
+                "account_name": "Johan Nathan"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/bank-account", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/bank-account',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "bank_code": "014",
+                  "account_number": "6xxxxxxxx5",
+                  "account_name": "Johan Nathan"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/property-count:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Property Count"
+      description: "Verify number of property owned by individual using NIK."
+      operationId: "kyc-verify-property-count"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponsePropertyCount"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/property-count" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "nik": "382xxxxxxxxxxx54"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/property-count", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/property-count',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/workplace:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Workplace"
+      description: "Verify individuals latest workplace using NIK and company information."
+      operationId: "kyc-verify-workplace"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "John Doe"
+                company_name:
+                  description: "Company's name"
+                  type: string
+                  example: "PT ABB Sentosa"
+                company_phone:
+                  description: "Company's phone"
+                  type: string
+                  example: "62896xxxxxxx76"
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseWorkplace"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/workplace" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "nik": "382xxxxxxxxxxx54",
+                  "name": "Johan Nathan"
+                  "company_phone": "3578040308930010",
+                  "company_name": "PT ABB Sentosa"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "name": "Johan Nathan"
+                "company_phone": "3578040308930010",
+                "company_name": "PT ABB Sentosa"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/workplace", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/workplace',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "name": "Johan Nathan"
+                  "company_phone": "3578040308930010",
+                  "company_name": "PT ABB Sentosa"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/vehicle-ownership:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Vehicle Ownership"
+      description: "Verify the vehicle ownership number with the NIK and registered vehicle ownership data."
+      operationId: "kyc-verify-vehicle-ownership"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                name:
+                  description: "Name as specified on registered KTP"
+                  type: string
+                  example: "John Doe"
+                address:
+                  description: "Vehicle owner address registered on KTP"
+                  type: string
+                  example: "Jl. Poros SMD"
+                plate_number:
+                  description: "Registered plate number based on vehicle ownership document. Input with the vehicle number format."
+                  type: string
+                  example: "KT 4X79 OW"
+                vehicle_brand:
+                  description: "Registered vehicle brand."
+                  type: string
+                  example: "YAMAHA"
+                vehicle_type:
+                  description: "The type of vehicle according to the vehicle registration."
+                  type: string
+                  example: "2DP-R A/T"
+                vehicle_cylinder:
+                  description: "The vehicle cylinder according to the vehicle registration."
+                  type: string
+                  example: "155.00"
+                chasis_no:
+                  description: "The vehicle chassis number according to the vehicle registration."
+                  type: string
+                  example: "MH3SG3XX0JJ110726"
+                engine_no:
+                  description: "The vehicle engine number according to the vehicle registration."
+                  type: string
+                  example: "G3E4E0XX0681"
+                vehicle_color:
+                  description: "The color of the vehicle according to the vehicle registration."
+                  type: string
+                  example: "BIRU"
+                vehicle_year:
+                  description: "The year of manufacture of the vehicle according to the vehicle registration certificate."
+                  type: string
+                  example: "2018"
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseVehicleOwnership"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/vehicle-ownership" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "nik": "382xxxxxxxxxxx54",
+                  "name": "LUKMAN",
+                  "address": "Jl. Poros SMD",
+                  "plate_number": "KT 4679 OW",
+                  "vehicle_brand": "YAMAHA",
+                  "vehicle_type":"2DP-R A/T",
+                  "vehicle_cylinder": "155.00",
+                  "chasis_no": "MH3SG3190JJ110726",
+                  "engine_no": "G3E4E0820681",
+                  "vehicle_color": "BIRU",
+                  "vehicle_year": "2018"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "382xxxxxxxxxxx54",
+                "name": "LUKMAN",
+                "address": "Jl. Poros SMD",
+                "plate_number": "KT 4679 OW",
+                "vehicle_brand": "YAMAHA",
+                "vehicle_type":"2DP-R A/T",
+                "vehicle_cylinder": "155.00",
+                "chasis_no": "MH3SG3190JJ110726",
+                "engine_no": "G3E4E0820681",
+                "vehicle_color": "BIRU",
+                "vehicle_year": "2018"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/vehicle-ownership", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/vehicle-ownership',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "nik": "382xxxxxxxxxxx54",
+                  "name": "LUKMAN",
+                  "address": "Jl. Poros SMD",
+                  "plate_number": "KT 4679 OW",
+                  "vehicle_brand": "YAMAHA",
+                  "vehicle_type":"2DP-R A/T",
+                  "vehicle_cylinder": "155.00",
+                  "chasis_no": "MH3SG3190JJ110726",
+                  "engine_no": "G3E4E0820681",
+                  "vehicle_color": "BIRU",
+                  "vehicle_year": "2018"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/company-sk:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Company SK"
+      description: "Verify company data using registered SK number issued by ministry of law and human rights."
+      operationId: "kyc-verify-company-sk"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company_npwp:
+                  description: "Corresponding company NPWP"
+                  type: string
+                  example: "60xxxxxxxxxxxx2"
+                  required: true
+                company_name:
+                  description: "Company name"
+                  type: string
+                  example: "PT ABB Sentosa"
+                  required: true
+                company_sk_no:
+                  description: "SK number issued from the ministry of law and human rights."
+                  type: string
+                  example: "AHU-0012xx5.AH.01.02.Tahun 2008"
+                  required: true
+                company_sk_date:
+                  description: "SK publication date. DD-MM-YYYY (e.g. 31- 01-1981)"
+                  type: string
+                  example: "14-03-2008"
+                  required: true
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseCompanySk"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/company-sk" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "company_npwp": "123456789012345",
+                  "company_name": "PT ABB Sentosa",
+                  "company_sk_no": "AHU-0012xx5.AH.01.02.Tahun 2008",
+                  "company_sk_date": "14-03-2008"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "company_npwp": "123456789012345",
+                "company_name": "PT ABB Sentosa",
+                "company_sk_no": "AHU-0012xx5.AH.01.02.Tahun 2008",
+                "company_sk_date": "14-03-2008"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/company-sk", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/company-sk',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "company_npwp": "123456789012345",
+                  "company_name": "PT ABB Sentosa",
+                  "company_sk_no": "AHU-0012xx5.AH.01.02.Tahun 2008",
+                  "company_sk_date": "14-03-2008"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/property-ownership:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Property Ownership"
+      description: "Verify property ownership using NIK and property document ownership data."
+      operationId: "kyc-verify-property-ownership"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                nop:
+                  description: "Number of Tax Object (Nomor Objek Pajak)"
+                  type: string
+                  example: "11223334xxx5566667"
+                property_owner_name:
+                  description: "Registered property owner name"
+                  type: string
+                  example: "John Doe"
+                property_building_area:
+                  description: "Total floor area of the property"
+                  type: integer
+                  example: 90
+                property_surface_area:
+                  description: "Surface area of the property"
+                  type: integer
+                  example: 200
+                property_estimation_value:
+                  description: "Estimated property value"
+                  type: integer
+                  example: 500000000
+                certificate_id:
+                  description: "Registered certificate ID of the property"
+                  type: string
+                  example: "1234567890"
+                certificate_owner_name:
+                  description: "Registered owner name on the certificate"
+                  type: string
+                  example: "John Doe"
+                certificate_type:
+                  description: "Type of the certificate e.g. HGB"
+                  type: string
+                  example: "HGB"
+                certificate_issue_date:
+                  description: "Date when the certificate is issued."
+                  type: string
+                  example: "01-01-1970"
+
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponsePropertyOwnership"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/property-ownership" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "nik": "1234567890123456",
+                  "nop": "112233344455566667",
+                  "property_owner_name": "John Doe",
+                  "property_building_area": 90,
+                  "property_surface_area": 200,
+                  "property_estimation_value": 500000000,
+                  "certificate_id": "1234567890",
+                  "certificate_owner_name": "John Doe",
+                  "certificate_type": "HGB",
+                  "certificate_issue_date": "01-01-1970"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "1234567890123456",
+                "nop": "112233344455566667",
+                "property_owner_name": "John Doe",
+                "property_building_area": 90,
+                "property_surface_area": 200,
+                "property_estimation_value": 500000000,
+                "certificate_id": "1234567890",
+                "certificate_owner_name": "John Doe",
+                "certificate_type": "HGB",
+                "certificate_issue_date": "01-01-1970"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/property-ownership", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/property-ownership',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "nik": "1234567890123456",
+                  "nop": "112233344455566667",
+                  "property_owner_name": "John Doe",
+                  "property_building_area": 90,
+                  "property_surface_area": 200,
+                  "property_estimation_value": 500000000,
+                  "certificate_id": "1234567890",
+                  "certificate_owner_name": "John Doe",
+                  "certificate_type": "HGB",
+                  "certificate_issue_date": "01-01-1970"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  /kyc/v1/verify/watchlist:
+    post:
+      tags:
+        - "KYC"
+      summary: "Verify Watchlist"
+      description: "Verify an individual’s criminal record."
+      operationId: "kyc-verify-watchlist-information"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Authorization
+          in: header
+          description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+          example: Bearer [token]
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          required: true
+          schema:
+            type: string
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
+          required: true
+          schema:
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nik:
+                  description: "Registered NIK number"
+                  type: string
+                  example: "382xxxxxxxxxxx54"
+                name:
+                  description: "Registered Name on KTP."
+                  type: string
+                  example: "John Doe"
+                similarity:
+                  description: "The similarity leve of the search. Suggested value are 85-90."
+                  type: integer
+                  example: "90"
+                search_type:
+                  description: "Type search using ALL data sources."
+                  type: string
+                  example: "ALL"
+                birth_date:
+                  description: "Individuals birth date registered on KTP."
+                  type: string
+                  example: "02-09-1997"
+                birth_place:
+                  description: "Individuals birth place registered on KTP."
+                  type: string
+                  example: "jakarta"
+
+
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseWatchlistInformation"
+        400:
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Data not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location -g --request POST "https://api.ftier.io/kyc/v1/verify/watchlist" \
+            --header "Authorization: Bearer [token]" \
+            --header "X-Client-ID: [x-client-id]" \
+            --header "datetime: [datetime]" \
+            --header "Signature: [signature]" \
+            --header "Content-Type: application/json" \
+            --data-raw "{
+                  "nik": "1234567890123456",
+                  "name": "john doe",
+                  "similarity": 90,
+                  "search_type": "ALL",
+                  "birth_date": "02-09-1997",
+                  "birth_place": "jakarta"
+            }"
+        - lang: "Javascript"
+          source: |
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer [token]");
+            myHeaders.append("X-Client-ID", "[x-client-id]");
+            myHeaders.append("datetime", "[datetime]");
+            myHeaders.append("Signature", "[signature]");
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "nik": "1234567890123456",
+                "name": "john doe",
+                "similarity": 90,
+                "search_type": "ALL",
+                "birth_date": "02-09-1997",
+                "birth_place": "jakarta"
+            });
+
+            var requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: raw,
+              redirect: 'follow'
+            };
+
+            fetch("https://api.ftier.io/kyc/v1/verify/watchlist", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+        - lang: "PHP"
+          source: |
+            <?php
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://api.ftier.io/kyc/v1/verify/watchlist',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS =>'{
+                  "nik": "1234567890123456",
+                  "name": "john doe",
+                  "similarity": 90,
+                  "search_type": "ALL",
+                  "birth_date": "02-09-1997",
+                  "birth_place": "jakarta"
+            }',
+              CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer [token]",
+                "X-Client-ID: [x-client-id]",
+                "datetime: [datetime]",
+                "Signature: [signature]",
+                "Content-Type: application/json"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            echo $response;
+
+  # /kyc/v1/result:
+  #     get:
+  #       tags:
+  #         - "KYC Result"
+  #       summary: "Retrieve previous KYC results"
+  #       description: "Retrieve previous results"
+  #       operationId: "kyc-get-results"
+  #       consumes:
+  #         - "application/json"
+  #       produces:
+  #         - "application/json"
+  #       parameters:
+  #         - name: Authorization
+  #           in: header
+  #           description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+  #           example: Bearer [token]
+  #           required: true
+  #           schema:
+  #             type: string
+  #         - name: X-Client-ID
+  #           in: header
+  #           description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+  #           required: true
+  #           schema:
+  #             type: string
+  #         - name: datetime
+  #           in: header
+  #           description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+  #           example: 12-10-2020 00:00:00
+  #           required: true
+  #           schema:
+  #             type: string
+  #         - name: Signature
+  #           in: header
+  #           description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+  #           required: true
+  #           schema:
+  #             type: string
+  #         - name: type
+  #           in: query
+  #           description: "One of string: `[identity, income, phone, phone_lifepan, home, workaddress]`"
+  #           required: true
+  #           schema:
+  #             type: string
+
+  #       responses:
+  #         200:
+  #           description: "successful operation"
+  #           schema:
+  #             $ref: "#/definitions/ApiResponseGetKycResult"
+  #         400:
+  #           description: "Invalid request"
+  #           schema:
+  #             $ref: "#/definitions/errorResponse400"
+  #         403:
+  #           description: "Unauthorized access"
+  #           schema:
+  #             $ref: "#/definitions/errorResponse403"
+  #         404:
+  #           description: "Identity not found"
+  #           schema:
+  #             $ref: "#/definitions/errorResponse404"
+  #       x-codeSamples:
+  #         - lang: "cURL"
+  #           source: |
+  #             curl --location -g --request GET 'https://api.sandbox.ftier.io/kyc/v1/result?type=identity' \
+  #             --header "Authorization: Bearer [token]" \
+  #             --header "X-Client-ID: [x-client-id]" \
+  #             --header "datetime: [datetime]" \
+  #             --header "Signature: [signature]" \
+  #             --header "Content-Type: application/json" \
+  #         - lang: "Javascript"
+  #           source: |
+  #             var myHeaders = new Headers();
+  #             myHeaders.append("Authorization", "Bearer [token]");
+  #             myHeaders.append("X-Client-ID", "[x-client-id]");
+  #             myHeaders.append("datetime", "[datetime]");
+  #             myHeaders.append("Signature", "[signature]");
+  #             myHeaders.append("Content-Type", "application/json");
+
+  #             var requestOptions = {
+  #               method: 'GET',
+  #               headers: myHeaders,
+  #               redirect: 'follow'
+  #             };
+
+  #             fetch("https://api.sandbox.ftier.io/kyc/v1/result?type=identity", requestOptions)
+  #               .then(response => response.text())
+  #               .then(result => console.log(result))
+  #               .catch(error => console.log('error', error));
+  #         - lang: "PHP"
+  #           source: |
+  #             <?php
+
+  #             $curl = curl_init();
+
+  #             curl_setopt_array($curl, array(
+  #               CURLOPT_URL => 'https://api.sandbox.ftier.io/kyc/v1/result?type=identity',
+  #               CURLOPT_RETURNTRANSFER => true,
+  #               CURLOPT_ENCODING => '',
+  #               CURLOPT_MAXREDIRS => 10,
+  #               CURLOPT_TIMEOUT => 0,
+  #               CURLOPT_FOLLOWLOCATION => true,
+  #               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  #               CURLOPT_CUSTOMREQUEST => 'GET',
+  #               CURLOPT_HTTPHEADER => array(
+  #                 "Authorization: Bearer [token]",
+  #                 "X-Client-ID: [x-client-id]",
+  #                 "datetime: [datetime]",
+  #                 "Signature: [signature]",
+  #                 "Content-Type: application/json"
+  #               ),
+  #             ));
+
+  #             $response = curl_exec($curl);
+
+  #             curl_close($curl);
+  #             echo $response;
+
+  /account-aggregation/v1/accountStatement:
+      post:
+        tags:
+          - "Account Statement"
+        summary: "Acquire account statements from various banks"
+        description:
+          "Retrieve account statement using  `u`,`p` and `bank_code`"
+        operationId: "account_aggregation_accountStatements"
+        consumes:
+          - "application/x-www-form-urlencoded"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+        requestBody:
+          required: true
+          content:
+            x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  u:
+                    description: "Username of corresponding owner's internet banking"
+                    type: string
+                  p:
+                    description: "PIN of corresponding owner's internet banking"
+                    type: string
+                  bank_code:
+                    description: "bank code"
+                    type: string
+                required:
+                  - u
+                  - p
+                  - bank_code
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponseAccountStatement"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Account not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location --request POST 'https://api.sandbox.ftier.io/account-aggregation/v1/accountStatement' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --header 'Authorization: Bearer [token]' \
+              --header 'datetime: 12-10-2020 00:00:00' \
+              --header 'Signature: [signature]' \
+              --header 'X-Client-ID: [X-Client-ID]' \
+              --data-urlencode 'u=************' \
+              --data-urlencode 'u=************ \
+              --data-urlencode 'bank_code=Mandiri'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("datetime", "12-10-2020 00:00:00");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("X-Client-ID", "[X-Client-ID]");
+
+              var urlencoded = new URLSearchParams();
+              urlencoded.append("u", "************");
+              urlencoded.append("p", "************");
+              urlencoded.append("bank_code", "Mandiri");
+
+              var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: urlencoded,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.sandbox.ftier.io/account-aggregation/v1/accountStatement", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.sandbox.ftier.io/account-aggregation/v1/accountStatement',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => 'u=************&p=************&bank_code=Mandiri',
+                CURLOPT_HTTPHEADER => array(
+                  'Content-Type: application/x-www-form-urlencoded',
+                  'Authorization: Bearer [token]',
+                  'datetime: 12-10-2020 00:00:00',
+                  'Signature: [signature]',
+                  'X-Client-ID: [X-Client-ID]'
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+  /account-aggregation/v1/result:
+      get:
+        tags:
+          - "Aggregation Result"
+        summary: "Retrieve previously acquired accounts information"
+        description: "Obtain brief informations of accounts that were successfully aggregated"
+        operationId: "account_aggregation_result_base"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponseAccountStatementResult"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Account not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            label: "CLI"
+            source: |
+              curl --location -g --request GET 'https://api.ftier.io/account-aggregation/v1/result' \
+              --header "Authorization: Bearer [token]" \
+              --header "X-Client-ID: [x-client-id]" \
+              --header "datetime: [datetime]" \
+              --header "Signature: [signature]" \
+              --header "Content-Type: application/json" \
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("X-Client-ID", "[x-client-id]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("Content-Type", "application/json");
+
+              var requestOptions = {
+                method: 'GET',
+                headers: myHeaders,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/account-aggregation/v1/result", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => '%7B%7Bhost%7D%7D/account-aggregation/v1/result',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                  "Authorization: Bearer [token]",
+                  "X-Client-ID: [x-client-id]",
+                  "datetime: [datetime]",
+                  "Signature: [signature]",
+                  "Content-Type: application/json"
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+  /account-aggregation/v1/result/detail:
+      get:
+        tags:
+          - "Aggregation Result"
+        summary: "Retrieve previously acquired account statements"
+        description: "Obtain complete informations of account statements that were successfully aggregated"
+        operationId: "account_aggregation_result_detail"
+        produces:
+          - "application/json"
+        parameters:
+          - name: Authorization
+            in: header
+            description: "Token provided from <a href='#operation/Generate-Token'>Generate Token API</a>"
+            example: Bearer [token]
+            required: true
+            schema:
+              type: string
+          - name: datetime
+            in: header
+            description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+            example: 12-10-2020 00:00:00
+            required: true
+            schema:
+              type: string
+          - name: Signature
+            in: header
+            description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+            required: true
+            schema:
+              type: string
+          - name: X-Client-ID
+            in: header
+            description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+            required: true
+            schema:
+              type: string
+          - name: acc_no
+            in: query
+            description: Account number of a successfully retrieved statements
+            required: true
+            schema:
+              type: string
+          - name: bank_code
+            in: query
+            description: "Bank code of the Account number. <br> Available bank code is: `bca`, `bni`, `mandiri`, `permata`, `cimb`, `ocbc`"
+            required: true
+            schema:
+              type: string
+        responses:
+          200:
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/ApiResponseAccountStatementResultDetail"
+          403:
+            description: "Unauthorized access"
+            schema:
+              $ref: "#/definitions/errorResponse403"
+          404:
+            description: "Account not found"
+            schema:
+              $ref: "#/definitions/errorResponse404"
+        x-codeSamples:
+          - lang: "cURL"
+            source: |
+              curl --location --request GET 'https://api.ftier.io/account-aggregation/v1/result/detail?acc_no=019324887134' \
+              --header 'Authorization: Bearer [token]' \
+              --header 'datetime: [datetime]' \
+              --header 'Signature: [signature]' \
+              --header 'X-Client-ID: [X-Client-ID]'
+          - lang: "Javascript"
+            source: |
+              var myHeaders = new Headers();
+              myHeaders.append("Authorization", "Bearer [token]");
+              myHeaders.append("datetime", "[datetime]");
+              myHeaders.append("Signature", "[signature]");
+              myHeaders.append("X-Client-ID", "[X-Client-ID]");
+
+              var requestOptions = {
+                method: 'GET',
+                headers: myHeaders,
+                redirect: 'follow'
+              };
+
+              fetch("https://api.ftier.io/account-aggregation/v1/result/detail?acc_no=019324887134", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+          - lang: "PHP"
+            source: |
+              <?php
+              $curl = curl_init();
+
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.ftier.io/account-aggregation/v1/result/detail?acc_no=019324887134',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                  'Authorization: Bearer [token]',
+                  'datetime: [datetime]',
+                  'Signature: [signature]',
+                  'X-Client-ID: [X-Client-ID]'
+                ),
+              ));
+
+              $response = curl_exec($curl);
+
+              curl_close($curl);
+              echo $response;
+
+# security definitions will show as "Authentication" under the info
+securityDefinitions:
+  # api_key:
+  #   type: "apiKey"
+  #   name: "api_key"
+  #   in: "header"
+  # oauth2:
+  #   type: "oauth2"
+  #   authorizationUrl: "https://api.staging.ftier.io/authorize"
+  #   flow: "implicit"
+  #   scopes:
+  #     read:balance: "read your customer's balances"
+
+definitions:
+  ApiResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        type: "object"
+
+  ApiResponseGenerateToken:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/generateTokenSuccessResponse"
+  generateTokenSuccessResponse:
+    type: "object"
+    properties:
+      "type":
+        type: "string"
+        example: Bearer
+      token:
+        type: "string"
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9eyJleHAiOjE2MTYxMzAzMzcsImlzcyI6ImZpbmFudGllckF1dGhTZXJ2aWNlIiwiVXNlcklEIjozLCJBcHBJRC6MH0.2xXzH_jj7_8DtVbqPw6GWS-ixImjFg6KY"
+      expire_at:
+        type: "string"
+        example: "2021-05-21T08:28:19.915936536Z"
+
+  # ApiResponseGetCustomer:
+  #   type: "object"
+  #   properties:
+  #     success:
+  #       type: "boolean"
+  #     message:
+  #       type: "string"
+  #       example: "success"
+  #     data:
+  #       $ref: "#/definitions/getCustomerSuccessResponse"
+  # getCustomerSuccessResponse:
+  #   type: "array"
+  #   items:
+  #     type: "object"
+  #     properties:
+  #       id:
+  #         type: "number"
+  #         example: 1
+  #       id_no:
+  #         type: "id_no"
+  #         example: "98087724"
+  #       npwp:
+  #         type: "string"
+  #         example: "546674678"
+  #       name:
+  #         type: "string"
+  #         example: "galih"
+  #       BirthDate:
+  #         type: "string"
+  #         example: ""
+
+  # ApiResponseGetCustomerById:
+  #   type: "object"
+  #   properties:
+  #     success:
+  #       type: "boolean"
+  #     message:
+  #       type: "string"
+  #       example: "success"
+  #     data:
+  #       $ref: "#/definitions/getCustomerByIdSuccessResponse"
+
+  # getCustomerByIdSuccessResponse:
+  #   type: "array"
+  #   items:
+  #     type: "object"
+  #     properties:
+  #       id:
+  #         type: "number"
+  #         example: 1
+  #       id_no:
+  #         type: "id_no"
+  #         example: "98087724"
+  #       npwp:
+  #         type: "string"
+  #         example: "546674678"
+  #       name:
+  #         type: "string"
+  #         example: "galih"
+  #       bank_accounts:
+  #         type: "array"
+  #         items:
+  #           type: "object"
+  #           properties:
+  #             account:
+  #               type: "object"
+  #               properties:
+  #                 id:
+  #                   type: "number"
+  #                   example: 1
+  #                 customer_id:
+  #                   type: "number"
+  #                   example: 1
+  #                 provider_code:
+  #                   type: "string"
+  #                   example: "bca"
+  #                 branch:
+  #                   type: "string"
+  #                   example: "KCP SCBD Kemanggisan"
+  #                 account_name:
+  #                   type: "string"
+  #                   example: "Galih Ardian"
+  #                 account_no:
+  #                   type: "string"
+  #                   example: "812941092"
+  #                 balance:
+  #                   type: "number"
+  #                   example: 50000
+  #                 username:
+  #                   type: "string"
+  #                   example: "gardi123"
+  #                 pin:
+  #                   type: "string"
+  #                   example: "12345678"
+  #             transactions:
+  #               type: "array"
+  #               items:
+  #                 type: "object"
+  #                 properties:
+  #                   id:
+  #                     type: "number"
+  #                     example: 2
+  #                   account_id:
+  #                     type: "number"
+  #                     example: 1
+  #                   "type":
+  #                     type: "string"
+  #                     example: "C"
+  #                   info:
+  #                     type: "string"
+  #                     example: "Payment on Friday"
+  #                   mutation:
+  #                     type: "number"
+  #                     example: "1500000"
+  #                   transaction_dt:
+  #                     type: "string"
+  #                     example: "12/03/2021"
+
+  # ApiResponseKyc:
+  #   type: "object"
+  #   properties:
+  #     success:
+  #       type: "boolean"
+  #     message:
+  #       type: "string"
+  #       example: "success"
+  #     data:
+  #       $ref: "#/definitions/kycSuccessResponse"
+  # kycSuccessResponse:
+  #   type: "object"
+  #   properties:
+  #     bank_account:
+  #       $ref: "#/definitions/bankSuccessResponse"
+  #     ktp_account:
+  #       $ref: "#/definitions/ktpSuccessResponse"
+  #     npwp_account:
+  #       $ref: "#/definitions/npwpSuccessResponse"
+
+  # ApiResponseGetKycResult:
+  #   type: "object"
+  #   properties:
+  #     success:
+  #       type: "boolean"
+  #     message:
+  #       type: "string"
+  #       example: "success"
+  #     data:
+  #       $ref: "#/definitions/getKycResultSuccessResponse"
+  # getKycResultSuccessResponse:
+  #   type: "object"
+  #   properties:
+  #     identity:
+  #       type: "array"
+  #       items:
+  #         $ref: "#/definitions/identityProfessionalSuccessResponse"
+  #     # email:
+  #     #   type: "array"
+  #     #   items:
+  #     #     $ref: "#/definitions/emailSuccessResponse"
+  #     income:
+  #       type: "array"
+  #       items:
+  #         $ref: "#/definitions/incomeByNIKSuccessResponse"
+  #     phone:
+  #       type: "array"
+  #       items:
+  #         $ref: "#/definitions/phoneNumberSuccessResponse"
+  #     phone_lifespan:
+  #       type: "array"
+  #       items:
+  #         $ref: "#/definitions/phoneLifespanSuccessResponse"
+  #     home:
+  #       type: "array"
+  #       items:
+  #         $ref: "#/definitions/homeAddressSuccessResponse"
+  #     workaddress:
+  #       type: "array"
+  #       items:
+  #         $ref: "#/definitions/workAddressSuccessResponse"
+
+  ApiResponseGetRemainingLimit:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/remainingLimitcSuccessResponse"
+  remainingLimitcSuccessResponse:
+    type: "object"
+    properties:
+      identity_basic:
+        type: "number"
+        example: 85
+      identity_professional:
+        type: "number"
+        example: 99
+      income_basic:
+        type: "number"
+        example: 89
+      income_by_nik:
+        type: "number"
+        example: 20
+      phone_number:
+        type: "number"
+        example: 87
+
+  ApiResponseBankAccount:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/bankAccountSuccessResponse"
+  bankAccountSuccessResponse:
+    type: "object"
+    properties:
+      bank_code:
+        type: "boolean"
+        example: true
+      account_number:
+        type: "boolean"
+        example: false
+      account_name:
+        type: "string"
+        example: john doe
+
+  ApiResponsePropertyCount:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/propertyCountSuccessResponse"
+  propertyCountSuccessResponse:
+    type: "object"
+    properties:
+      property_count:
+        type: "string"
+        example: 2
+
+  ApiResponseWorkplace:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/workplaceSuccessResponse"
+  workplaceSuccessResponse:
+    type: "object"
+    properties:
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "boolean"
+        example: true
+      company:
+        type: "boolean"
+        example: true
+      company_name:
+        type: "string"
+        example: true
+      company_phone:
+        type: "boolean"
+        example: true
+
+  ApiResponseVehicleOwnership:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/vehicleOwnershipSuccessResponse"
+  vehicleOwnershipSuccessResponse:
+    type: "object"
+    properties:
+      plate_number:
+        type: "boolean"
+        example: true
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "string"
+        example: 100
+      address:
+        type: "string"
+        example: 100
+      vehicle_brand:
+        type: "string"
+        example: 100
+      vehicle_type:
+        type: "string"
+        example: 100
+      vehicle_cylinder:
+        type: "boolean"
+        example: true
+      chasis_no:
+        type: "boolean"
+        example: true
+      engine_no:
+        type: "boolean"
+        example: true
+      vehicle_color:
+        type: "string"
+        example: 100
+      vehicle_year:
+        type: "string"
+        example: 100
+
+  ApiResponseCompanySk:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/companySkSuccessResponse"
+  companySkSuccessResponse:
+    type: "object"
+    properties:
+      company_npwp:
+        type: "boolean"
+        example: true
+      company_name:
+        type: "boolean"
+        example: true
+      company_sk_no:
+        type: "boolean"
+        example: true
+      company_sk_date:
+        type: "boolean"
+        example: true
+
+  ApiResponsePropertyOwnership:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/propertyOwnershipSuccessResponse"
+  propertyOwnershipSuccessResponse:
+    type: "object"
+    properties:
+      property_address:
+        type: "string"
+        example: "J*l*n J*nd*r*l S*d*rm*n"
+      property_owner_name:
+        type: "boolean"
+        example: true
+      property_building_area:
+        type: "boolean"
+        example: true
+      property_surface_area:
+        type: "boolean"
+        example: true
+      property_estimation_value:
+        type: "string"
+        example: 500000000
+      certificate_address:
+        type: "string"
+        example: "J*l*n J*nd*r*l S*d*rm*n"
+      certificate_id:
+        type: "boolean"
+        example: true
+      certificate_owner_name:
+        type: "boolean"
+        example: true
+      certificate_type:
+        type: "boolean"
+        example: true
+      certificate_issue_date:
+        type: "boolean"
+        example: true
+
+  ApiResponseWatchlistInformation:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/watchlistInformationSuccessResponse"
+  watchlistInformationSuccessResponse:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        person_entity_id:
+          type: "string"
+          example: "3129229"
+        full_name:
+          type: "string"
+          example: "John Doe"
+        first_name:
+          type: "string"
+          example: "John"
+        middle_name:
+          type: "string"
+          example: ""
+        surename:
+          type: "string"
+          example: "Doe"
+        similarity:
+          type: "integer"
+          example: 92
+        birth_date:
+          type: "string"
+          example: "1990-01-20"
+        source_info:
+          type: "string"
+          example: "Dow Jones"
+        source_info_code:
+          type: "string"
+          example: "DW"
+        country_name:
+          type: "string"
+          example: "Indonesia"
+        occupation_category:
+          type: "string"
+          example: "Special Interest Person (SIP)"
+        source_info_desc:
+          type: "string"
+          example: "Dow Jones"
+        image_profile:
+          type: "string"
+          example: "https://assets.example.com/crop/0x0:x0/x/photo/2002/12/06/255X0X3868.jpg"
+        person_id:
+          type: "string"
+          example: "g564xx4b-bxc3-xxfc-a5xx-x0c12xa4b1b0"
+
+  ApiResponseIdentityBasic:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/identityBasicSuccessResponse"
+  identityBasicSuccessResponse:
+    type: "object"
+    properties:
+      name:
+        type: "number"
+        example: 85
+      address:
+        type: "number"
+        example: 99
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "number"
+        example: 89
+
+  ApiResponseIdentityProfessional:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/identityProfessionalSuccessResponse"
+  identityProfessionalSuccessResponse:
+    type: "object"
+    properties:
+      name:
+        type: "number"
+        example: 85
+      address:
+        type: "number"
+        example: 99
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "number"
+        example: 89
+      selfie_photo:
+        type: "number"
+        example: 95.3
+
+  ApiResponseEmail:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/emailSuccessResponse"
+  emailSuccessResponse:
+    type: "object"
+    properties:
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponseIncomeBasic:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/incomeBasicSuccessResponse"
+  incomeBasicSuccessResponse:
+    type: "object"
+    properties:
+      income:
+        type: "string"
+        example: "BELOW"
+      name:
+        type: "boolean"
+        example: true
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "boolean"
+        example: true
+      nik:
+        type: "boolean"
+        example: true
+      npwp:
+        type: "boolean"
+        example: true
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponseIncomeByNIK:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/incomeByNIKSuccessResponse"
+  incomeByNIKSuccessResponse:
+    type: "object"
+    properties:
+      income:
+        type: "string"
+        example: "BELOW"
+      name:
+        type: "boolean"
+        example: true
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "boolean"
+        example: true
+
+  ApiResponseCompanyIncome:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/companyIncomeSuccessResponse"
+  companyIncomeSuccessResponse:
+    type: "object"
+    properties:
+      company_npwp:
+        type: "boolean"
+        example: true
+      income:
+        type: "string"
+        example: "BELOW"
+
+  ApiResponseShareholder:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/shareholderSuccessResponse"
+  shareholderSuccessResponse:
+    type: "object"
+    properties:
+      company_npwp:
+        type: "boolean"
+        example: true
+      company_name:
+        type: "string"
+        example: true
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "boolean"
+        example: true
+
+  ApiResponsePhoneNumber:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/phoneNumberSuccessResponse"
+  phoneNumberSuccessResponse:
+    type: "object"
+    properties:
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponsePhoneLifespan:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/phoneLifespanSuccessResponse"
+  phoneLifespanSuccessResponse:
+    type: "object"
+    properties:
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponsePhoneCount:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/phoneCountSuccessResponse"
+  phoneCountSuccessResponse:
+    type: "object"
+    properties:
+      result:
+        type: "boolean"
+        example: true
+      total:
+        type: "number"
+        example: 4
+
+  ApiResponseHomeAddress:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/homeAddressSuccessResponse"
+  homeAddressSuccessResponse:
+    type: "object"
+    properties:
+      location_percentage:
+        type: "number"
+        example: 100
+
+  ApiResponseWorkAddress:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/workAddressSuccessResponse"
+  workAddressSuccessResponse:
+    type: "object"
+    properties:
+      work_address_percentage:
+        type: "number"
+        example: 100
+
+  ApiResponseNegativeList:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/negativeListSuccessResponse"
+  negativeListSuccessResponse:
+    type: "object"
+    properties:
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "string"
+        example: "J*H*N *A*H*N"
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "boolean"
+        example: true
+      detail:
+        type: "object"
+        properties:
+          status:
+            type: "string"
+            example: "Tersangka"
+
+  ApiResponseFamilyCard:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/familyCardSuccessResponse"
+  familyCardSuccessResponse:
+    type: "object"
+    properties:
+      family_id:
+        type: "boolean"
+        example: true
+
+  ApiResponseMotherName:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/motherNameSuccessResponse"
+  motherNameSuccessResponse:
+    type: "object"
+    properties:
+      mother_name:
+        type: "number"
+        example: 96
+
+
+  ApiResponseAccountStatement:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/accountStatementSuccessResponse"
+  accountStatementSuccessResponse:
+    type: "object"
+    properties:
+      account_name:
+        type: "string"
+        example: "Bpk ROBERT NARO ROBERT NARO"
+      account_no:
+        type: "string"
+        example: "0115476117"
+      currency:
+        type: "string"
+        example: "IDR"
+      balance:
+        type: "number"
+        example: "15000000"
+      branch:
+        type: "string"
+        example: "KCP Anda"
+      transactions:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            date:
+              type: "string"
+              example: "2010-05-31"
+            info:
+              type: "string"
+              example: "TRANSFER DARI 00000000115476151"
+            mutation:
+              type: "string"
+              example: "1000.002"
+            type:
+              type: "string"
+              example: "C"
+
+  ApiResponseAccountStatementResult:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/accountStatementResultSuccessResponse"
+  accountStatementResultSuccessResponse:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "number"
+          example: 1
+        app_id:
+          type: "number"
+          example: 1
+        account_no:
+          type: "string"
+          example: "019324887134"
+        customer_name:
+          type: "string"
+          example: "Galih Hardiyan"
+        balance:
+          type: "number"
+          example: 1484250
+        sign_up_dt:
+          type: "string"
+          example: "2021-07-05"
+        last_update:
+          type: "string"
+          example: "2021-07-06 03:34:38"
+
+  ApiResponseAccountStatementResultDetail:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/accountStatementResultDetailSuccessResponse"
+  accountStatementResultDetailSuccessResponse:
+    type: "object"
+    properties:
+      id:
+        type: "number"
+        example: 1
+      app_id:
+        type: "number"
+        example: 1
+      account_no:
+        type: "string"
+        example: "019324887134"
+      account_name:
+        type: "string"
+        example: "Galih Hardiyan"
+      transactions:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            date:
+              type: "string"
+              example: "2010-05-31"
+            info:
+              type: "string"
+              example: "TRANSFER DARI 00000000115476151"
+            mutation:
+              type: "string"
+              example: "1000.002"
+            type:
+              type: "string"
+              example: "C"
+  errorResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: ""
+  errorResponse400:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: "Bad request"
+  errorResponse403:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: "Forbidden"
+  errorResponse404:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: "Data not found"
+
+# external docs will show between info and Authentication
+externalDocs:
+  description: "Find out more about Paper id"
+  url: "https://paper.idd"
