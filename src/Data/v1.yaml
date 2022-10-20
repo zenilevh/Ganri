@@ -10,6 +10,13 @@ info:
 
   description: |
     # Introduction
+    This is the developer documentation for the PAPER.ID API. This API allows other application to engage with PAPER.ID invoicing, 
+    payment and financing system. The API in this collection allow you to handle a number of resources for tasks such as:
+
+    1. Managing documents exchange
+    2. Utilizing payment aggregator
+    3. Interacting with financing modules
+
     PAPER.ID API is organized around REST. Our API has predictable resource-oriented URLs, accepts form-encoded request bodies, 
     returns JSON-encoded responses, and uses standard HTTP response codes and authentication.
 
@@ -23,11 +30,13 @@ info:
 
     Basic auth expects an Authorization header for each request in the basic base 64 token format. 
     Your client_id and client secrets carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, 
-    
     client-side code, and so forth.
-    All API requests must be made over HTTPS. Calls made over plain HTTP will fail. API requests without authentication will also fail.
 
+    All API requests must be made over HTTPS. Calls made over plain HTTP will fail. API requests without authentication will also fail.
+    
     # Environment
+
+
     | Environment | Base URL                              |
     |-------------|---------------------------------------|
     | Sandbox     | https://open-api.sandbox.paper.id/api |
@@ -43,19 +52,24 @@ info:
 
     Response Code
     Description Of Usual Server Responses:
-    1. 200 OK - the request was successful (some API calls may return 201 instead).
-    2. 201 Created- the request was successful and a resource was created.
-    3. 204 No Content- the request was successful but there is no representation to return (i.e. the response is empty).
-    4. 400 Bad Request- the request could not be understood or was missing required parameters.
-    5. 401 Unauthorized- authentication failed or user doesn't have permissions for requested operation.
-    6.  6403 Forbidden - access denied.
-    7. 404 Not Found- resource was not found.
-    8. 405 Method Not Allowed- requested method is not supported for resource.
-    9. 500 Internal Server Error- It means that the server encountered an unexpected condition that prevented it from fulfilling the request.
+    1. <span class="blue">200</span> OK - the request was successful (some API calls may return 201 instead).
+    2. <span class="blue">201</span> Created- the request was successful and a resource was created.
+    3. <span class="blue">204</span> No Content- the request was successful but there is no representation to return (i.e. the response is empty).
+    4. <span class="danger">400</span> Bad Request- the request could not be understood or was missing required parameters.
+    5. <span class="danger">401</span> Unauthorized- authentication failed or user doesn't have permissions for requested operation.
+    6. <span class="danger">403</span> Forbidden - access denied.
+    7. <span class="danger">404</span> Not Found- resource was not found.
+    8. <span class="danger">405</span> Method Not Allowed- requested method is not supported for resource.
+    9. <span class="gray">500</span> Internal Server Error- It means that the server encountered an unexpected condition that prevented it from fulfilling the request.
+
+    # Callback
+    PAPER uses callback to notify your application any time an event happens on your account like when the customer completes the payment process or when transaction status changes. 
+    These notifications help you to update payment status or take suitable actions in real-time.
 
     # Webhook
     PAPER uses callback to notify your application any time an event happens on your account like when the customer completes the payment process or when transaction status changes. 
     These notifications help you to update payment status or take suitable actions in real-time.
+
     # Setup
     You can set up your callback URL Setting by reaching our developers team. You need to provide a callback URL endpoint in your system to receive callback from us. 
     With the Callback URL the HTTPS connection will be terminated immediately and a unique id will be returned in the response body. PAPER.ID will POST a message to the callback_url specified in your request in a JSON format application/json. The ID in the response will reflect the ID in the results posted to your Callback URL.
@@ -64,25 +78,16 @@ info:
     click <a href='https://documenter.getpostman.com/view/15278429/TzecDR2p#2a736a3b-4868-42a5-b1de-7bc05845ef2e'>Here</a> to see payment callback value.
 
     click <a href='https://documenter.getpostman.com/view/15278429/TzecDR2p#0bff0600-3bd7-4e23-8fb2-354bbbf013ea'>Here</a> to see invoice callback value.
+    
+    # User and Company Account
+    A company is an entity that represents your company.
 
-    # Partner Description
-    This API represents your business partner (which are either customer, supplier or both roles simultaneously). 
-    It lets you get the information about the contact and it will act as a basis on whom the document will be referred to.
+    User account can be registered under a Company with an email. A User is an entity that represents a person in your company who will be interacting with the Paper.id system. You can register your first User with our API and add or update users via our Dashboard.
 
-    <h1>Partner Behavior</h1>
-    Please bear in mind as well that the main attribute that will be unique and act as identifier for each partners are:
+    <strong>IMPORTANT: You can also directly register from our interface via</strong> https://paper.id/webappv1/#/register
 
-    1. ID.
-    2. Phone number.
-    3. Email address.
-
-    Therefore, it is strongly recommended to check whether there is duplicate on the phone number and email address or not before creating or updating the partners.
-
-    Use id as the reference to your existing Customer. If no Partner (Customer or Supplier) with the id exists, a new one will be created when you are calling the API.
-
-    <strong>CAUTION</strong>: If a partner already exists with the id, its metadata will be updated with the one in.
   version: "1.0.0"
-  title: "Paper id API Docs"
+  title: "PAPER ID - Open API"
 
 servers:
   - url: //open-api.devel.paper.id/
@@ -104,38 +109,22 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: X-Api-Key
+        - name: client_id
           in: header
-          description: "External API Key provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
-          example: ey119kf-91A9Es-...
           required: true
           schema:
             type: string
-        - name: datetime
+        - name: client_secret
           in: header
-          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
-          example: 12-10-2020 00:00:00
           required: true
           schema:
             type: string
-        - name: Signature
+        - name: company_id
           in: header
-          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                X-Client-ID:
-                  description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>."
-                  type: string
-              required:
-                - X-Client-ID
+      
       responses:
         200:
           description: "successful operation"
@@ -161,7 +150,74 @@ paths:
                             --header 'client_secret;' \
                             --header 'company_id;' \
                             --header 'Content-Type: application/json' \
+  /api/v1/v1/open-api/register:
+    post:
+      tags:
+        - "User and company"
+      summary: "Register user"
+      description: |
+              Register user and company for the first time.
+          
+              <strong>IMPORTANT: If you want to access our dashboard, please reset password from our page and insert new password. 
+              See page URL in <a href="https://documenter.getpostman.com/view/15278429/TzecDR2p#environment" class="underline">here</a> to reach dashboard in our environments</strong>
 
+      operationId: "generate-token"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: client_id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: client_secret
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  example: user123@paper.id
+                  description: "Name of user client email"
+                  type: string
+              required:
+                - email
+      
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiRegisterUser"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location --request POST 'https://open-api.sandbox.paper.id/api/v1/v1/open-api/register' \
+            --header 'Content-Type: application/json' \
+            --header 'client_id;' \
+            --header 'client_secret;' \
+            --data-raw '{
+                "email": "user123@paper.id"
+            }'
   
 # security definitions will show as "Authentication" under the info
 securityDefinitions:
@@ -249,6 +305,102 @@ definitions:
                   phone:
                     type: "string"
                     example: "+6289123456789"
+
+  ApiRegisterUser:
+    type: "object"
+    properties:
+      status:
+        type: "number"
+        example: 200
+      message:
+        type: "string"
+        example: "User has been Registered"
+      user:
+        $ref: "#/definitions/RegisterResponseData"
+  RegisterResponseData:
+      type: "object"
+      properties:
+        company_id:
+          type: "string"
+          example: "8e482eb9-5d79-4e05-bf29-2f5bc58bb035"
+        created_at:
+          type: "string"
+          example: "2021-01-01T11:59:59.000Z"
+        email:
+          type: "string"
+          example: "user123@paper.id"
+        emailVerified:
+          type: "string"
+          example: null
+          x-nullable: true
+        has_onboarding:
+          type: "boolean"
+          example: false
+        is_creator:
+          type: "boolean"
+          example: true
+        lastname:
+          type: "string"
+          example: null
+          x-nullable: true
+        login_attempt:
+          type: "string"
+          example: null
+          x-nullable: true
+        login_limit_timestamp:
+          type: "string"
+          example: null
+          x-nullable: true
+        name:
+          type: "string"
+          example: null
+          x-nullable: true
+        paper_chain_popup:
+          type: "string"
+          example: null
+          x-nullable: true
+        password:
+          type: "string"
+          example: "$2b$10$VBCxD/f6/olzJw4.wZ0Js.ezRuN/IhRMqDBSd9.dytyYD0Q8BBM7O"
+        people_type:
+          type: "boolean"
+          example: false
+        phone:
+          type: "string"
+          example: null
+          x-nullable: true
+        photo:
+          type: "string"
+          example: null
+          x-nullable: true
+        plain_password:
+          type: "string"
+          example: null
+          x-nullable: true
+        realm:
+          type: "string"
+          example: null
+          x-nullable: true
+        registered_by:
+          type: "string"          
+          example: "alfiansyahad2"
+        remember_token:
+          type: "string"
+          example: null
+          x-nullable: true
+        updated_at:
+          type: "string"
+          example: "2021-01-01T11:59:59.000Z"
+        username:
+          type: "string"
+          example: null
+          x-nullable: true
+        uuid:
+          type: "string"
+          example: "6a358f0c-adfe-478d-8c21-086eff7d14a3"
+        verificationToken:
+          type: "string"
+          example: "s9qk9pfjc27d12p3j2hfxk6hp5l28w5ikoizvp3njlf7rzeucpt"
 
   ApiResponseGetRemainingLimit:
     type: "object"
@@ -358,6 +510,7 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/vehicleOwnershipSuccessResponse"
+        
   vehicleOwnershipSuccessResponse:
     type: "object"
     properties:
@@ -405,6 +558,7 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/companySkSuccessResponse"
+
   companySkSuccessResponse:
     type: "object"
     properties:
@@ -431,6 +585,7 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/propertyOwnershipSuccessResponse"
+
   propertyOwnershipSuccessResponse:
     type: "object"
     properties:
@@ -475,6 +630,7 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/watchlistInformationSuccessResponse"
+
   watchlistInformationSuccessResponse:
     type: "array"
     items:
@@ -533,6 +689,7 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/identityBasicSuccessResponse"
+
   identityBasicSuccessResponse:
     type: "object"
     properties:
@@ -559,6 +716,7 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/identityProfessionalSuccessResponse"
+
   identityProfessionalSuccessResponse:
     type: "object"
     properties:

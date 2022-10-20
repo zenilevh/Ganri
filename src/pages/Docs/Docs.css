@@ -1,3 +1,17 @@
+/* Typografi */
+.underline{
+    text-decoration: underline !important;
+}
+
+.token.number{
+    color:rgb(221, 61, 61) !important;
+}
+.token.keyword{
+    color: rgb(174, 129, 255) !important;
+}
+.token.boolean{
+    color: rgb(246, 138, 158) !important;
+}
 
 /* Sidenav Searchbar */
 div[role=search]>div {
