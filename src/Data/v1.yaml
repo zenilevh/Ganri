@@ -1,1228 +1,1023 @@
-openapi: 3.0.0
-servers:
-  - url: //petstore.swagger.io/v2
-    description: Default server
-  - url: //petstore.swagger.io/sandbox
-    description: Sandbox server
+---
+swagger: "2.0"
+# info will be displayed on first page
 info:
+  x-logo:
+    url: "https://paper.id/img/paperlogofinal.svg"
+    backgroundColor: "#FFFFFF"
+    altText: "Paper id logo"
+    href: "https://paper.id"
+
   description: |
-    This is a sample server Petstore server.
-    You can find out more about Swagger at
-    [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).
-    For this sample, you can use the api key `special-key` to test the authorization filters.
-
     # Introduction
-    This API is documented in **OpenAPI format** and is based on
-    [Petstore sample](http://petstore.swagger.io/) provided by [swagger.io](http://swagger.io) team.
-    It was **extended** to illustrate features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo)
-    tool and [ReDoc](https://github.com/Redocly/redoc) documentation. In addition to standard
-    OpenAPI syntax we use a few [vendor extensions](https://github.com/Redocly/redoc/blob/main/docs/redoc-vendor-extensions.md).
-
-    # OpenAPI Specification
-    This API is documented in **OpenAPI format** and is based on
-    [Petstore sample](http://petstore.swagger.io/) provided by [swagger.io](http://swagger.io) team.
-    It was **extended** to illustrate features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo)
-    tool and [ReDoc](https://github.com/Redocly/redoc) documentation. In addition to standard
-    OpenAPI syntax we use a few [vendor extensions](https://github.com/Redocly/redoc/blob/main/docs/redoc-vendor-extensions.md).
-
-    # Cross-Origin Resource Sharing
-    This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/).
-    And that allows cross-domain communication from the browser.
-    All responses have a wildcard same-origin which makes them completely public and accessible to everyone, including any code on any site.
+    PAPER.ID API is organized around REST. Our API has predictable resource-oriented URLs, accepts form-encoded request bodies, 
+    returns JSON-encoded responses, and uses standard HTTP response codes and authentication.
 
     # Authentication
+    Before using the API, reach out to Paper.id team to get your client and account created. The PAPER.ID API's are authenticated using Basic Auth. Basic auth requires the following:
 
-    Petstore offers two forms of authentication:
-      - API Key
-      - OAuth2
-    OAuth2 - an open protocol to allow secure authorization in a simple
-    and standard method from web, mobile and desktop applications.
+    | Key            | Value                |
+    |----------------|----------------------|
+    | client_id      | [YOUR_CLIENT_ID]     |
+    | client_secret  | [YOUR_CLIENT_SECRET] |
 
-    <SecurityDefinitions />
+    Basic auth expects an Authorization header for each request in the basic base 64 token format. 
+    Your client_id and client secrets carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, 
+    
+    client-side code, and so forth.
+    All API requests must be made over HTTPS. Calls made over plain HTTP will fail. API requests without authentication will also fail.
 
-  version: 1.0.0
-  title: Swagger Petstore
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    name: API Support
-    email: apiteam@swagger.io
-    url: https://github.com/Redocly/redoc
-  x-logo:
-    url: 'https://redocly.github.io/redoc/petstore-logo.png'
-    altText: Petstore logo
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
-tags:
-  - name: pet
-    description: Everything about your Pets
-  - name: store
-    description: Access to Petstore orders
-  - name: user
-    description: Operations about user
-  - name: pet_model
-    x-displayName: The Pet Model
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Pet" />
-  - name: store_model
-    x-displayName: The Order Model
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Order" exampleRef="#/components/examples/Order" showReadOnly={true} showWriteOnly={true} />
-x-tagGroups:
-  - name: General
-    tags:
-      - pet
-      - store
-  - name: User Management
-    tags:
-      - user
-  - name: Models
-    tags:
-      - pet_model
-      - store_model
+    # Environment
+    | Environment | Base URL                              |
+    |-------------|---------------------------------------|
+    | Sandbox     | https://open-api.sandbox.paper.id/api |
+    | Production  | https://apis.paper.id/api             |
+
+
+
+    For the front end side (dashboard) you can access via these URL
+    | Environment | Dashboard  URL                        |
+    |-------------|---------------------------------------|
+    | Sandbox     | https://sandbox.paper.id/webappv1/    |
+    | Production  | https://paper.id/webappv1/            |
+
+    Response Code
+    Description Of Usual Server Responses:
+    1. 200 OK - the request was successful (some API calls may return 201 instead).
+    2. 201 Created- the request was successful and a resource was created.
+    3. 204 No Content- the request was successful but there is no representation to return (i.e. the response is empty).
+    4. 400 Bad Request- the request could not be understood or was missing required parameters.
+    5. 401 Unauthorized- authentication failed or user doesn't have permissions for requested operation.
+    6.  6403 Forbidden - access denied.
+    7. 404 Not Found- resource was not found.
+    8. 405 Method Not Allowed- requested method is not supported for resource.
+    9. 500 Internal Server Error- It means that the server encountered an unexpected condition that prevented it from fulfilling the request.
+
+    # Webhook
+    PAPER uses callback to notify your application any time an event happens on your account like when the customer completes the payment process or when transaction status changes. 
+    These notifications help you to update payment status or take suitable actions in real-time.
+    # Setup
+    You can set up your callback URL Setting by reaching our developers team. You need to provide a callback URL endpoint in your system to receive callback from us. 
+    With the Callback URL the HTTPS connection will be terminated immediately and a unique id will be returned in the response body. PAPER.ID will POST a message to the callback_url specified in your request in a JSON format application/json. The ID in the response will reflect the ID in the results posted to your Callback URL.
+
+
+    click <a href='https://documenter.getpostman.com/view/15278429/TzecDR2p#2a736a3b-4868-42a5-b1de-7bc05845ef2e'>Here</a> to see payment callback value.
+
+    click <a href='https://documenter.getpostman.com/view/15278429/TzecDR2p#0bff0600-3bd7-4e23-8fb2-354bbbf013ea'>Here</a> to see invoice callback value.
+
+    # Partner Description
+    This API represents your business partner (which are either customer, supplier or both roles simultaneously). 
+    It lets you get the information about the contact and it will act as a basis on whom the document will be referred to.
+
+    <h1>Partner Behavior</h1>
+    Please bear in mind as well that the main attribute that will be unique and act as identifier for each partners are:
+
+    1. ID.
+    2. Phone number.
+    3. Email address.
+
+    Therefore, it is strongly recommended to check whether there is duplicate on the phone number and email address or not before creating or updating the partners.
+
+    Use id as the reference to your existing Customer. If no Partner (Customer or Supplier) with the id exists, a new one will be created when you are calling the API.
+
+    <strong>CAUTION</strong>: If a partner already exists with the id, its metadata will be updated with the one in.
+  version: "1.0.0"
+  title: "Paper id API Docs"
+
+servers:
+  - url: //open-api.devel.paper.id/
+    description: Production server
+
+schemes:
+  - "https"
+
 paths:
-  /pet:
-    parameters:
-      - name: Accept-Language
-        in: header
-        description: "The language you prefer for messages. Supported values are en-AU, en-CA, en-GB, en-US"
-        example: en-US
-        required: false
-        schema:
-          type: string
-          default: en-AU
-      - name: cookieParam
-        in: cookie
-        description: Some cookie
-        required: true
-        schema:
-          type: integer
-          format: int64
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      description: Add new pet to the store inventory.
-      operationId: addPet
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      x-codeSamples:
-        - lang: 'C#'
-          source: |
-            PetStore.v1.Pet pet = new PetStore.v1.Pet();
-            pet.setApiKey("your api key");
-            pet.petType = PetStore.v1.Pet.TYPE_DOG;
-            pet.name = "Rex";
-            // set other fields
-            PetStoreResponse response = pet.create();
-            if (response.statusCode == HttpStatusCode.Created)
-            {
-              // Successfully created
-            }
-            else
-            {
-              // Something wrong -- check response for errors
-              Console.WriteLine(response.getRawResponse());
-            }
-        - lang: PHP
-          source: |
-            $form = new \PetStore\Entities\Pet();
-            $form->setPetType("Dog");
-            $form->setName("Rex");
-            // set other fields
-            try {
-                $pet = $client->pets()->create($form);
-            } catch (UnprocessableEntityException $e) {
-                var_dump($e->getErrors());
-            }
-      requestBody:
-        $ref: '#/components/requestBodies/Pet'
-    put:
-      tags:
-        - pet
-      summary: Update an existing pet
-      description: ''
-      operationId: updatePet
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-        '405':
-          description: Validation exception
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      x-codeSamples:
-        - lang: PHP
-          source: |
-            $form = new \PetStore\Entities\Pet();
-            $form->setPetId(1);
-            $form->setPetType("Dog");
-            $form->setName("Rex");
-            // set other fields
-            try {
-                $pet = $client->pets()->update($form);
-            } catch (UnprocessableEntityException $e) {
-                var_dump($e->getErrors());
-            }
-      requestBody:
-        $ref: '#/components/requestBodies/Pet'
-  '/pet/{petId}':
+  /v1/purchase-orders/{{order_id}}:
     get:
       tags:
-        - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
+        - "Purchase orders"
+      summary: "Purchase Order (Single Document) "
+      description: "Request this endpoint to get all partners (client, supplier or both) in your Paper.id account "
+      operationId: "generate-token"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
       parameters:
-        - name: petId
-          in: path
-          description: ID of pet to return
-          required: true
-          deprecated: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - api_key: []
-    post:
-      tags:
-        - pet
-      summary: Updates a pet in the store with form data
-      description: ''
-      operationId: updatePetWithForm
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                name:
-                  description: Updated name of the pet
-                  type: string
-                status:
-                  description: Updated status of the pet
-                  type: string
-    delete:
-      tags:
-        - pet
-      summary: Deletes a pet
-      description: ''
-      operationId: deletePet
-      parameters:
-        - name: api_key
+        - name: X-Api-Key
           in: header
-          required: false
+          description: "External API Key provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
+          example: ey119kf-91A9Es-...
+          required: true
           schema:
             type: string
-          example: "Bearer <TOKEN>"
-        - name: petId
-          in: path
-          description: Pet id to delete
+        - name: datetime
+          in: header
+          description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
+          example: 12-10-2020 00:00:00
           required: true
           schema:
-            type: integer
-            format: int64
-      responses:
-        '400':
-          description: Invalid pet value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  '/pet/{petId}/uploadImage':
-    post:
-      tags:
-        - pet
-      summary: uploads an image
-      description: ''
-      operationId: uploadFile
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to update
+            type: string
+        - name: Signature
+          in: header
+          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
           required: true
           schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
+            type: string
       requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-  /pet/findByStatus:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-        - name: status
-          in: query
-          description: Status values that need to be considered for filter
-          required: true
-          style: form
-          schema:
-            type: array
-            minItems: 1
-            maxItems: 3
-            items:
-              type: string
-              enum:
-                - available
-                - pending
-                - sold
-              default: available
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid status value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /pet/findByTags:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by tags
-      description: >-
-        Multiple tags can be provided with comma separated strings. Use tag1,
-        tag2, tag3 for testing.
-      operationId: findPetsByTags
-      deprecated: true
-      parameters:
-        - name: tags
-          in: query
-          description: Tags to filter by
-          required: true
-          style: form
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                type: array
-                maxItems: 999
-                items:
-                  maxItems: 111
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid tag value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /store/inventory:
-    get:
-      tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                minProperties: 2
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-        - api_key: []
-  /store/order:
-    post:
-      tags:
-        - store
-      summary: Place an order for a pet
-      description: ''
-      operationId: placeOrder
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid Order
-          content:
-            application/json:
-              example:
-                status: 400
-                message: "Invalid Order"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-        description: order placed for purchasing the pet
         required: true
-  '/store/order/{orderId}':
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: >-
-        For valid response try integer IDs with value <= 5 or > 10. Other values
-        will generated exceptions
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of pet that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-            maximum: 5
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: >-
-        For valid response try integer IDs with value < 1000. Anything above
-        1000 or nonintegers will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: string
-            minimum: 1
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-  /store/subscribe:
-    post:
-      tags:
-        - store
-      summary: Subscribe to the Store events
-      description: Add subscription for a store events
-      requestBody:
         content:
-          application/json:
+          x-www-form-urlencoded:
             schema:
               type: object
               properties:
-                callbackUrl:
+                X-Client-ID:
+                  description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>."
                   type: string
-                  format: uri
-                  description: This URL will be called by the server when the desired event will occur
-                  example: https://myserver.com/send/callback/here
-                eventName:
-                  type: string
-                  description: Event name for the subscription
-                  enum:
-                    - orderInProgress
-                    - orderShipped
-                    - orderDelivered
-                  example: orderInProgress
               required:
-                - callbackUrl
-                - eventName
+                - X-Client-ID
       responses:
-        '201':
-          description: Subscription added
-          content:
-            application/json:
-              schema:
-                type: object
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponseGetPurchaseOrderSingle"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/errorResponse400"
+        403:
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/errorResponse403"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/errorResponse404"
+      x-codeSamples:
+        - lang: "cURL"
+          source: |
+            curl --location --request POST '{{paper-open-api}}/v1/purchase-orders/ {{order_id}}' \
+                            --header 'client_id;' \
+                            --header 'client_secret;' \
+                            --header 'company_id;' \
+                            --header 'Content-Type: application/json' \
+
+  
+# security definitions will show as "Authentication" under the info
+securityDefinitions:
+definitions:
+  ApiResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        type: "object"
+
+  ApiResponseGetPurchaseOrderSingle:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/PurchaseOrderSingleResponseData"
+  PurchaseOrderSingleResponseData:
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "bc901483-1e18-4df1-a99d-7d1cb0e6f25f012349"
+        number:
+          type: "string"
+          example: "PO/VI/0001"
+        status:
+          type: "string"
+          example: "accepted"
+        order_date:
+          type: "string"
+          example: "2022-06-29"
+        suplier:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              example: "S.00001"
+            company_name:
+              type: "string"
+              example: "PT.Pakar Digital Global"
+            company_email:
+              type: "string"
+              example: "pdg.paper@paper.id"
+            company_phone:
+              type: "string"
+              example : "+622119209102"
+            href:
+              type: "string"
+              example : "/partners/89e7bf3f-0d81-408c-ad1a-0c5fe490f5db"
+            contacts:
+              type: "array"
+              items:
+                type: "object"
                 properties:
-                  subscriptionId:
-                    type: string
-                    example: AAA-123-BBB-456
-      callbacks:
-        orderInProgress:
-          '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-            servers:
-              - url: //callback-url.path-level/v1
-                description: Path level server 1
-              - url: //callback-url.path-level/v2
-                description: Path level server 2
-            post:
-              summary: Order in Progress (Summary)
-              description: A callback triggered every time an Order is updated status to "inProgress" (Description)
-              externalDocs:
-                description: Find out more
-                url: 'https://more-details.com/demo'
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-                        timestamp:
-                          type: string
-                          format: date-time
-                          example: '2018-10-19T16:46:45Z'
-                        status:
-                          type: string
-                          example: 'inProgress'
-                  application/xml:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-                    example: |
-                      <?xml version="1.0" encoding="UTF-8"?>
-                      <root>
-                        <orderId>123</orderId>
-                        <status>inProgress</status>
-                        <timestamp>2018-10-19T16:46:45Z</timestamp>
-                      </root>
-              responses:
-                '200':
-                  description: Callback successfully processed and no retries will be performed
-                  content:
-                    application/json:
-                      schema:
-                        type: object
-                        properties:
-                          someProp:
-                            type: string
-                            example: '123'
-                '299':
-                  description: Response for cancelling subscription
-                '500':
-                  description: Callback processing failed and retries will be performed
-              x-codeSamples:
-                - lang: 'C#'
-                  source: |
-                    PetStore.v1.Pet pet = new PetStore.v1.Pet();
-                    pet.setApiKey("your api key");
-                    pet.petType = PetStore.v1.Pet.TYPE_DOG;
-                    pet.name = "Rex";
-                    // set other fields
-                    PetStoreResponse response = pet.create();
-                    if (response.statusCode == HttpStatusCode.Created)
-                    {
-                      // Successfully created
-                    }
-                    else
-                    {
-                      // Something wrong -- check response for errors
-                      Console.WriteLine(response.getRawResponse());
-                    }
-                - lang: PHP
-                  source: |
-                    $form = new \PetStore\Entities\Pet();
-                    $form->setPetType("Dog");
-                    $form->setName("Rex");
-                    // set other fields
-                    try {
-                        $pet = $client->pets()->create($form);
-                    } catch (UnprocessableEntityException $e) {
-                        var_dump($e->getErrors());
-                    }
-            put:
-              description: Order in Progress (Only Description)
-              servers:
-                - url: //callback-url.operation-level/v1
-                  description: Operation level server 1 (Operation override)
-                - url: //callback-url.operation-level/v2
-                  description: Operation level server 2 (Operation override)
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-                        timestamp:
-                          type: string
-                          format: date-time
-                          example: '2018-10-19T16:46:45Z'
-                        status:
-                          type: string
-                          example: 'inProgress'
-                  application/xml:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-                    example: |
-                      <?xml version="1.0" encoding="UTF-8"?>
-                      <root>
-                        <orderId>123</orderId>
-                        <status>inProgress</status>
-                        <timestamp>2018-10-19T16:46:45Z</timestamp>
-                      </root>
-              responses:
-                '200':
-                  description: Callback successfully processed and no retries will be performed
-                  content:
-                    application/json:
-                      schema:
-                        type: object
-                        properties:
-                          someProp:
-                            type: string
-                            example: '123'
-        orderShipped:
-          '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-            post:
-              description: |
-                Very long description
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-                nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                culpa qui officia deserunt mollit anim id est laborum.
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-                        timestamp:
-                          type: string
-                          format: date-time
-                          example: '2018-10-19T16:46:45Z'
-                        estimatedDeliveryDate:
-                          type: string
-                          format: date-time
-                          example: '2018-11-11T16:00:00Z'
-              responses:
-                '200':
-                  description: Callback successfully processed and no retries will be performed
-        orderDelivered:
-          'http://notificationServer.com?url={$request.body#/callbackUrl}&event={$request.body#/eventName}':
-            post:
-              deprecated: true
-              summary: Order delivered
-              description: A callback triggered every time an Order is delivered to the recipient
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-                        timestamp:
-                          type: string
-                          format: date-time
-                          example: '2018-10-19T16:46:45Z'
-              responses:
-                '200':
-                  description: Callback successfully processed and no retries will be performed
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Created user object
-        required: true
-  '/user/{username}':
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: ''
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-    put:
-      tags:
-        - user
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      parameters:
-        - name: username
-          in: path
-          description: name that need to be deleted
-          required: true
-          schema:
-            type: string
-      responses:
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Updated user object
-        required: true
-    delete:
-      tags:
-        - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
-      responses:
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-  /user/createWithArray:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: ''
-      operationId: createUsersWithArrayInput
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        $ref: '#/components/requestBodies/UserArray'
-  /user/createWithList:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: ''
-      operationId: createUsersWithListInput
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        $ref: '#/components/requestBodies/UserArray'
-  /user/login:
-    get:
-      tags:
-        - user
-      summary: Logs user into the system
-      description: ''
-      operationId: loginUser
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
-              schema:
-                type: string
-                format: date-time
-          content:
-            application/json:
-              schema:
-                type: string
-              examples:
-                response:
-                  value: OK
-            application/xml:
-              schema:
-                type: string
-              examples:
-                response:
-                  value: <Message> OK </Message>
-            text/plain:
-              examples:
-                response:
-                  value: OK
-        '400':
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      description: ''
-      operationId: logoutUser
-      responses:
-        default:
-          description: successful operation
-components:
-  schemas:
-    ApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
-    Cat:
-      description: A representation of a cat
-      allOf:
-        - $ref: '#/components/schemas/Pet'
-        - type: object
-          properties:
-            huntingSkill:
-              type: string
-              description: The measured skill for hunting
-              default: lazy
-              example: adventurous
-              enum:
-                - clueless
-                - lazy
-                - adventurous
-                - aggressive
-          required:
-            - huntingSkill
-    Category:
-      type: object
-      properties:
-        id:
-          description: Category ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        name:
-          description: Category name
-          type: string
-          minLength: 1
-        sub:
-          description: Test Sub Category
-          type: object
-          properties:
-            prop1:
-              type: string
-              description: Dumb Property
-      xml:
-        name: Category
-    Dog:
-      description: A representation of a dog
-      allOf:
-        - $ref: '#/components/schemas/Pet'
-        - type: object
-          properties:
-            packSize:
-              type: integer
-              format: int32
-              description: The size of the pack the dog is from
-              default: 1
-              minimum: 1
-          required:
-            - packSize
-    HoneyBee:
-      description: A representation of a honey bee
-      allOf:
-        - $ref: '#/components/schemas/Pet'
-        - type: object
-          properties:
-            honeyPerDay:
-              type: number
-              description: Average amount of honey produced per day in ounces
-              example: 3.14
-              multipleOf: .01
-          required:
-            - honeyPerDay
-    Id:
-      type: integer
-      format: int64
-      readOnly: true
-    Order:
-      type: object
-      properties:
-        id:
-          description: Order ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        petId:
-          description: Pet ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        quantity:
-          type: integer
-          format: int32
-          minimum: 1
-          default: 1
-        shipDate:
-          description: Estimated ship date
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
-          description: Indicates whenever order was completed or not
-          type: boolean
-          default: false
-          readOnly: true
-        requestId:
-          description: Unique Request Id
-          type: string
-          writeOnly: true
-      xml:
-        name: Order
-    Pet:
-      type: object
-      required:
-        - name
-        - photoUrls
-      discriminator:
-        propertyName: petType
-        mapping:
-          cat: '#/components/schemas/Cat'
-          dog: '#/components/schemas/Dog'
-          bee: '#/components/schemas/HoneyBee'
-      properties:
-        id:
-          externalDocs:
-            description: "Find more info here"
-            url: "https://example.com"
-          description: Pet ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        category:
-          description: Categories this pet belongs to
-          allOf:
-            - $ref: '#/components/schemas/Category'
-        name:
-          description: The name given to a pet
-          type: string
-          example: Guru
-        photoUrls:
-          description: The list of URL to a cute photos featuring pet
-          type: array
-          maxItems: 20
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-            format: url
-        friend:
-          allOf:
-            - $ref: '#/components/schemas/Pet'
-        tags:
-          description: Tags attached to the pet
-          type: array
-          minItems: 1
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
-          type: string
-          description: Pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-        petType:
-          description: Type of a pet
-          type: string
-      xml:
-        name: Pet
-    Tag:
-      type: object
-      properties:
-        id:
-          description: Tag ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        name:
-          description: Tag name
-          type: string
-          minLength: 1
-      xml:
-        name: Tag
-    User:
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/Id'
-        pet:
-          oneOf:
-            - $ref: '#/components/schemas/Pet'
-            - $ref: '#/components/schemas/Tag'
-        username:
-          description: User supplied username
-          type: string
-          minLength: 4
-          example: John78
-        firstName:
-          description: User first name
-          type: string
-          minLength: 1
-          example: John
-        lastName:
-          description: User last name
-          type: string
-          minLength: 1
-          example: Smith
-        email:
-          description: User email address
-          type: string
-          format: email
-          example: john.smith@example.com
-        password:
-          type: string
-          description: >-
-            User password, MUST contain a mix of upper and lower case letters,
-            as well as digits
-          format: password
-          minLength: 8
-          pattern: '/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/'
-          example: drowssaP123
-        phone:
-          description: User phone number in international format
-          type: string
-          pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
-          example: +1-202-555-0192
-        userStatus:
-          description: User status
-          type: integer
-          format: int32
-        addresses:
-          type: array
-          minItems: 0
-          maxLength: 10
-          items:
-            - type: object
-              properties:
-                city:
-                  type: string
-                  minLength: 0
-                country:
-                  type: string
-                  minLength: 0
-                street:
-                  description: includes build/apartment number
-                  type: string
-                  minLength: 0
-            - type: number
-          additionalItems:
-            type: string
-      xml:
-        name: User
-  requestBodies:
-    Pet:
-      content:
-        application/json:
-          schema:
-            allOf:
-              - description: My Pet
-                title: Pettie
-              - $ref: '#/components/schemas/Pet'
-        application/xml:
-          schema:
-            type: 'object'
-            properties:
-              name:
-                type: string
-                description: hooray
-      description: Pet object that needs to be added to the store
-      required: true
-    UserArray:
-      content:
-        application/json:
-          schema:
-            type: array
+                  name:
+                    type: "string"
+                    example: "John Doe"
+                  email:
+                    type: "string"
+                    example: "john@paper.id"
+                  phone:
+                    type: "string"
+                    example: "+6289123456789"
             items:
-              $ref: '#/components/schemas/User'
-      description: List of user object
-      required: true
-  securitySchemes:
-    petstore_auth:
-      description: |
-        Get access to data while protecting your account credentials.
-        OAuth2 is also a safer and more secure way to give you access.
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: 'http://petstore.swagger.io/api/oauth/dialog'
-          scopes:
-            'write:pets': modify pets in your account
-            'read:pets': read your pets
-    api_key:
-      description: >
-        For this sample, you can use the api key `special-key` to test the
-        authorization filters.
-      type: apiKey
-      name: api_key
-      in: header
-  examples:
-    Order:
-      value:
-        quantity: 1
-        shipDate: '2018-10-19T16:46:45Z'
-        status: placed
-        complete: false
-x-webhooks:
-  newPet:
-    post:
-      summary: New pet
-      description: Information about a new pet in the systems
-      operationId: newPet
-      tags:
-        - pet
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Pet"
-      responses:
-        "200":
-          description: Return a 200 status to indicate that the data was received successfully
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  name:
+                    type: "string"
+                    example: "John Doe"
+                  email:
+                    type: "string"
+                    example: "john@paper.id"
+                  phone:
+                    type: "string"
+                    example: "+6289123456789"
+
+  ApiResponseGetRemainingLimit:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/remainingLimitcSuccessResponse"
+  remainingLimitcSuccessResponse:
+    type: "object"
+    properties:
+      identity_basic:
+        type: "number"
+        example: 85
+      identity_professional:
+        type: "number"
+        example: 99
+      income_basic:
+        type: "number"
+        example: 89
+      income_by_nik:
+        type: "number"
+        example: 20
+      phone_number:
+        type: "number"
+        example: 87
+
+  ApiResponseBankAccount:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/bankAccountSuccessResponse"
+  bankAccountSuccessResponse:
+    type: "object"
+    properties:
+      bank_code:
+        type: "boolean"
+        example: true
+      account_number:
+        type: "boolean"
+        example: false
+      account_name:
+        type: "string"
+        example: john doe
+
+  ApiResponsePropertyCount:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/propertyCountSuccessResponse"
+  propertyCountSuccessResponse:
+    type: "object"
+    properties:
+      property_count:
+        type: "string"
+        example: 2
+
+  ApiResponseWorkplace:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/workplaceSuccessResponse"
+  workplaceSuccessResponse:
+    type: "object"
+    properties:
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "boolean"
+        example: true
+      company:
+        type: "boolean"
+        example: true
+      company_name:
+        type: "string"
+        example: true
+      company_phone:
+        type: "boolean"
+        example: true
+
+  ApiResponseVehicleOwnership:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/vehicleOwnershipSuccessResponse"
+  vehicleOwnershipSuccessResponse:
+    type: "object"
+    properties:
+      plate_number:
+        type: "boolean"
+        example: true
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "string"
+        example: 100
+      address:
+        type: "string"
+        example: 100
+      vehicle_brand:
+        type: "string"
+        example: 100
+      vehicle_type:
+        type: "string"
+        example: 100
+      vehicle_cylinder:
+        type: "boolean"
+        example: true
+      chasis_no:
+        type: "boolean"
+        example: true
+      engine_no:
+        type: "boolean"
+        example: true
+      vehicle_color:
+        type: "string"
+        example: 100
+      vehicle_year:
+        type: "string"
+        example: 100
+
+  ApiResponseCompanySk:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/companySkSuccessResponse"
+  companySkSuccessResponse:
+    type: "object"
+    properties:
+      company_npwp:
+        type: "boolean"
+        example: true
+      company_name:
+        type: "boolean"
+        example: true
+      company_sk_no:
+        type: "boolean"
+        example: true
+      company_sk_date:
+        type: "boolean"
+        example: true
+
+  ApiResponsePropertyOwnership:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/propertyOwnershipSuccessResponse"
+  propertyOwnershipSuccessResponse:
+    type: "object"
+    properties:
+      property_address:
+        type: "string"
+        example: "J*l*n J*nd*r*l S*d*rm*n"
+      property_owner_name:
+        type: "boolean"
+        example: true
+      property_building_area:
+        type: "boolean"
+        example: true
+      property_surface_area:
+        type: "boolean"
+        example: true
+      property_estimation_value:
+        type: "string"
+        example: 500000000
+      certificate_address:
+        type: "string"
+        example: "J*l*n J*nd*r*l S*d*rm*n"
+      certificate_id:
+        type: "boolean"
+        example: true
+      certificate_owner_name:
+        type: "boolean"
+        example: true
+      certificate_type:
+        type: "boolean"
+        example: true
+      certificate_issue_date:
+        type: "boolean"
+        example: true
+
+  ApiResponseWatchlistInformation:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/watchlistInformationSuccessResponse"
+  watchlistInformationSuccessResponse:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        person_entity_id:
+          type: "string"
+          example: "3129229"
+        full_name:
+          type: "string"
+          example: "John Doe"
+        first_name:
+          type: "string"
+          example: "John"
+        middle_name:
+          type: "string"
+          example: ""
+        surename:
+          type: "string"
+          example: "Doe"
+        similarity:
+          type: "integer"
+          example: 92
+        birth_date:
+          type: "string"
+          example: "1990-01-20"
+        source_info:
+          type: "string"
+          example: "Dow Jones"
+        source_info_code:
+          type: "string"
+          example: "DW"
+        country_name:
+          type: "string"
+          example: "Indonesia"
+        occupation_category:
+          type: "string"
+          example: "Special Interest Person (SIP)"
+        source_info_desc:
+          type: "string"
+          example: "Dow Jones"
+        image_profile:
+          type: "string"
+          example: "https://assets.example.com/crop/0x0:x0/x/photo/2002/12/06/255X0X3868.jpg"
+        person_id:
+          type: "string"
+          example: "g564xx4b-bxc3-xxfc-a5xx-x0c12xa4b1b0"
+
+  ApiResponseIdentityBasic:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/identityBasicSuccessResponse"
+  identityBasicSuccessResponse:
+    type: "object"
+    properties:
+      name:
+        type: "number"
+        example: 85
+      address:
+        type: "number"
+        example: 99
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "number"
+        example: 89
+
+  ApiResponseIdentityProfessional:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/identityProfessionalSuccessResponse"
+  identityProfessionalSuccessResponse:
+    type: "object"
+    properties:
+      name:
+        type: "number"
+        example: 85
+      address:
+        type: "number"
+        example: 99
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "number"
+        example: 89
+      selfie_photo:
+        type: "number"
+        example: 95.3
+
+  ApiResponseEmail:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/emailSuccessResponse"
+  emailSuccessResponse:
+    type: "object"
+    properties:
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponseIncomeBasic:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/incomeBasicSuccessResponse"
+  incomeBasicSuccessResponse:
+    type: "object"
+    properties:
+      income:
+        type: "string"
+        example: "BELOW"
+      name:
+        type: "boolean"
+        example: true
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "boolean"
+        example: true
+      nik:
+        type: "boolean"
+        example: true
+      npwp:
+        type: "boolean"
+        example: true
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponseIncomeByNIK:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/incomeByNIKSuccessResponse"
+  incomeByNIKSuccessResponse:
+    type: "object"
+    properties:
+      income:
+        type: "string"
+        example: "BELOW"
+      name:
+        type: "boolean"
+        example: true
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "boolean"
+        example: true
+
+  ApiResponseCompanyIncome:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/companyIncomeSuccessResponse"
+  companyIncomeSuccessResponse:
+    type: "object"
+    properties:
+      company_npwp:
+        type: "boolean"
+        example: true
+      income:
+        type: "string"
+        example: "BELOW"
+
+  ApiResponseShareholder:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/shareholderSuccessResponse"
+  shareholderSuccessResponse:
+    type: "object"
+    properties:
+      company_npwp:
+        type: "boolean"
+        example: true
+      company_name:
+        type: "string"
+        example: true
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "boolean"
+        example: true
+
+  ApiResponsePhoneNumber:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/phoneNumberSuccessResponse"
+  phoneNumberSuccessResponse:
+    type: "object"
+    properties:
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponsePhoneLifespan:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/phoneLifespanSuccessResponse"
+  phoneLifespanSuccessResponse:
+    type: "object"
+    properties:
+      match_result:
+        type: "boolean"
+        example: true
+
+  ApiResponsePhoneCount:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/phoneCountSuccessResponse"
+  phoneCountSuccessResponse:
+    type: "object"
+    properties:
+      result:
+        type: "boolean"
+        example: true
+      total:
+        type: "number"
+        example: 4
+
+  ApiResponseHomeAddress:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/homeAddressSuccessResponse"
+  homeAddressSuccessResponse:
+    type: "object"
+    properties:
+      location_percentage:
+        type: "number"
+        example: 100
+
+  ApiResponseWorkAddress:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/workAddressSuccessResponse"
+  workAddressSuccessResponse:
+    type: "object"
+    properties:
+      work_address_percentage:
+        type: "number"
+        example: 100
+
+  ApiResponseNegativeList:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/negativeListSuccessResponse"
+  negativeListSuccessResponse:
+    type: "object"
+    properties:
+      nik:
+        type: "boolean"
+        example: true
+      name:
+        type: "string"
+        example: "J*H*N *A*H*N"
+      birthdate:
+        type: "boolean"
+        example: true
+      birthplace:
+        type: "boolean"
+        example: true
+      detail:
+        type: "object"
+        properties:
+          status:
+            type: "string"
+            example: "Tersangka"
+
+  ApiResponseFamilyCard:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/familyCardSuccessResponse"
+  familyCardSuccessResponse:
+    type: "object"
+    properties:
+      family_id:
+        type: "boolean"
+        example: true
+
+  ApiResponseMotherName:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/motherNameSuccessResponse"
+  motherNameSuccessResponse:
+    type: "object"
+    properties:
+      mother_name:
+        type: "number"
+        example: 96
+
+
+  ApiResponseAccountStatement:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/accountStatementSuccessResponse"
+  accountStatementSuccessResponse:
+    type: "object"
+    properties:
+      account_name:
+        type: "string"
+        example: "Bpk ROBERT NARO ROBERT NARO"
+      account_no:
+        type: "string"
+        example: "0115476117"
+      currency:
+        type: "string"
+        example: "IDR"
+      balance:
+        type: "number"
+        example: "15000000"
+      branch:
+        type: "string"
+        example: "KCP Anda"
+      transactions:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            date:
+              type: "string"
+              example: "2010-05-31"
+            info:
+              type: "string"
+              example: "TRANSFER DARI 00000000115476151"
+            mutation:
+              type: "string"
+              example: "1000.002"
+            type:
+              type: "string"
+              example: "C"
+
+  ApiResponseAccountStatementResult:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+  accountStatementResultSuccessResponse:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "number"
+          example: 1
+        app_id:
+          type: "number"
+          example: 1
+        account_no:
+          type: "string"
+          example: "019324887134"
+        customer_name:
+          type: "string"
+          example: "Galih Hardiyan"
+        balance:
+          type: "number"
+          example: 1484250
+        sign_up_dt:
+          type: "string"
+          example: "2021-07-05"
+        last_update:
+          type: "string"
+          example: "2021-07-06 03:34:38"
+
+  ApiResponseAccountStatementResultDetail:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        example: "success"
+      data:
+        $ref: "#/definitions/accountStatementResultDetailSuccessResponse"
+  accountStatementResultDetailSuccessResponse:
+    type: "object"
+    properties:
+      id:
+        type: "number"
+        example: 1
+      app_id:
+        type: "number"
+        example: 1
+      account_no:
+        type: "string"
+        example: "019324887134"
+      account_name:
+        type: "string"
+        example: "Galih Hardiyan"
+      transactions:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            date:
+              type: "string"
+              example: "2010-05-31"
+            info:
+              type: "string"
+              example: "TRANSFER DARI 00000000115476151"
+            mutation:
+              type: "string"
+              example: "1000.002"
+            type:
+              type: "string"
+              example: "C"
+  errorResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: ""
+  errorResponse400:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: "Bad request"
+  errorResponse403:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: "Forbidden"
+  errorResponse404:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        example: false
+      message:
+        type: "message"
+        example: "Data not found"
+
+# external docs will show between info and Authentication
+externalDocs:
+  description: "Find out more about Paper id"
+  url: "https://paper.id"
