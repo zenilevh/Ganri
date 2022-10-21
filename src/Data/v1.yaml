@@ -1,6 +1,13 @@
 ---
-swagger: "2.0"
+swagger: '2.0'
 # info will be displayed on first page
+servers:
+  - url: //open-api.devel.paper.id/
+    description: Production server
+
+schemes:
+  - "https"
+
 info:
   x-logo:
     url: "https://paper.id/img/paperlogofinal.svg"
@@ -81,15 +88,18 @@ info:
     Use id as the reference to your existing Customer. If no Partner (Customer or Supplier) with the id exists, a new one will be created when you are calling the API.
 
     <strong>CAUTION</strong>: If a partner already exists with the id, its metadata will be updated with the one in.
+
   version: "1.0.0"
   title: "Paper id API Docs"
+  termsOfService: 'http://paper.id/terms/'
+  contact:
+    name: API Support PaperID
+    email: support@paper.id
+    url: https://bitbucket.com/paper/redocly
+  license:
+    name: Testing 1.0
+    url: 'https://github.com/zenilevh/Ganri'
 
-servers:
-  - url: //open-api.devel.paper.id/
-    description: Production server
-
-schemes:
-  - "https"
 
 paths:
   /v1/purchase-orders/{{order_id}}:
@@ -104,38 +114,26 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: X-Api-Key
+        - name: client_id
           in: header
-          description: "External API Key provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>"
-          example: ey119kf-91A9Es-...
+          description: "For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions"
+          example: 1234
           required: true
           schema:
             type: string
-        - name: datetime
+        - name: client_secret
           in: header
           description: "Date and time when making request; Formatted in DD-MM-YYYY HH:MM:SS"
           example: 12-10-2020 00:00:00
           required: true
           schema:
             type: string
-        - name: Signature
+        - name: "Content-Type"
           in: header
-          description: "HMAC-SHA256 encrypted secret. Refer to <a href='#section/Signature'>Signature</a> tab on how to make the Signature"
+          description: "lorem ipsum"
           required: true
           schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                X-Client-ID:
-                  description: "External Client ID provided to you. Refer to <a href='#section/Prerequisites'>Prerequisites</a>."
-                  type: string
-              required:
-                - X-Client-ID
+            type: application/json
       responses:
         200:
           description: "successful operation"
@@ -157,10 +155,10 @@ paths:
         - lang: "cURL"
           source: |
             curl --location --request POST '{{paper-open-api}}/v1/purchase-orders/ {{order_id}}' \
-                            --header 'client_id;' \
-                            --header 'client_secret;' \
-                            --header 'company_id;' \
-                            --header 'Content-Type: application/json' \
+                      --header 'client_id;' \
+                      --header 'client_secret;' \
+                      --header 'company_id;' \
+                      --header 'Content-Type: application/json' \
 
   
 # security definitions will show as "Authentication" under the info
@@ -187,68 +185,95 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/PurchaseOrderSingleResponseData"
+  
   PurchaseOrderSingleResponseData:
-    items:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          example: "bc901483-1e18-4df1-a99d-7d1cb0e6f25f012349"
-        number:
-          type: "string"
-          example: "PO/VI/0001"
-        status:
-          type: "string"
-          example: "accepted"
-        order_date:
-          type: "string"
-          example: "2022-06-29"
-        suplier:
-          type: "object"
-          properties:
-            id:
-              type: "string"
-              example: "S.00001"
-            company_name:
-              type: "string"
-              example: "PT.Pakar Digital Global"
-            company_email:
-              type: "string"
-              example: "pdg.paper@paper.id"
-            company_phone:
-              type: "string"
-              example : "+622119209102"
-            href:
-              type: "string"
-              example : "/partners/89e7bf3f-0d81-408c-ad1a-0c5fe490f5db"
-            contacts:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  name:
-                    type: "string"
-                    example: "John Doe"
-                  email:
-                    type: "string"
-                    example: "john@paper.id"
-                  phone:
-                    type: "string"
-                    example: "+6289123456789"
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "bc901483-1e18-4df1-a99d-7d1cb0e6f25f012349"
+      number:
+        type: "string"
+        example: "PO/VI/0001"
+      status:
+        type: "string"
+        example: "accepted"
+      order_date:
+        type: "string"
+        example: "2022-06-29"
+      suplier:
+        type: "object"
+        properties:
+          id:
+            type: "string"
+            example: "S.00001"
+          company_name:
+            type: "string"
+            example: "PT.Pakar Digital Global"
+          company_email:
+            type: "string"
+            example: "pdg.paper@paper.id"
+          company_phone:
+            type: "string"
+            example : "+622119209102"
+          href:
+            type: "string"
+            example : "/partners/89e7bf3f-0d81-408c-ad1a-0c5fe490f5db"
+          contacts:
+            type: "array"
             items:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  name:
-                    type: "string"
-                    example: "John Doe"
-                  email:
-                    type: "string"
-                    example: "john@paper.id"
-                  phone:
-                    type: "string"
-                    example: "+6289123456789"
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+                  example: "John Doe"
+                email:
+                  type: "string"
+                  example: "john@paper.id"
+                phone:
+                  type: "string"
+                  example: "+6289123456789"
+          items:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+                  example: "AC LG"
+                code:
+                  type: "string"
+                  example: "SKU0001"
+                description:
+                  type: "string"
+                  example: "Ductless, Mini-Split Air Conditioner"
+                quantity:
+                  type: "string"
+                  example: "1"
+                uom:
+                  type: "string"
+                  example: "pcs"
+                discount:
+                  type: "number"
+                  example: 0
+                price:
+                  type: "number"
+                  example: 1000000
+                tax:
+                  type: "number"
+                  example: 10
+                product_href:
+                  type: "string"
+                  example: "/products/82e69cd1-e66a-4a57-9862-2e4396b1c3ca"
+                additional_info:
+                  type: "object"
+                  properties:
+                    discount_tier:
+                      type: "string"
+                      example: "1"
+                    batch_no:
+                      type: "string"
+                      example: "MFG0580"
 
   ApiResponseGetRemainingLimit:
     type: "object"
