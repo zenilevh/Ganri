@@ -10,8 +10,8 @@ schemes:
 
 info:
   x-logo:
-    url: "https://paper.id/img/paperlogofinal.svg"
-    backgroundColor: "#FFFFFF"
+    url: "https://fintech.id/storage/files/shares/logo/logofi2/paperid.png"
+    backgroundColor: "#f3fafd"
     altText: "Paper id logo"
     href: "https://paper.id"
 
@@ -95,16 +95,15 @@ info:
 
     <strong>CAUTION</strong>: If a partner already exists with the id, its metadata will be updated with the one in.
 
-  version: "1.0.0"
-  title: "Paper id API Docs"
-  termsOfService: 'http://paper.id/terms/'
-  contact:
-    name: API Support PaperID
-    email: support@paper.id
-    url: https://bitbucket.com/paper/redocly
-  license:
-    name: Testing 1.0
-    url: 'https://github.com/zenilevh/Ganri'
+  title: "PaperID API Documentation"
+  # termsOfService: 'http://paper.id/terms/'
+  # contact:
+  #   name: API Support PaperID
+  #   email: support@paper.id
+  #   url: https://bitbucket.com/paper/redocly
+  # license:
+  #   name: Testing 1.0
+  #   url: 'https://github.com/zenilevh/Ganri'
 
 
 paths:
@@ -122,16 +121,22 @@ paths:
       parameters:
         - name: client_id
           in: header
+          example: "{{client_id}}"
+          description: "this is client id"
           required: true
           schema:
             type: string
         - name: client_secret
           in: header
+          example: "{{client_secret}}"
+          description: "this is client secret"
           required: true
           schema:
             type: string
         - name: company_id
           in: header
+          example: "{{company_id}}"
+          description: "this is company id"
           required: true
           schema:
             type: string
@@ -239,7 +244,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         type: "object"
@@ -250,7 +255,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/PurchaseOrderSingleResponseData"
@@ -259,34 +264,34 @@ definitions:
     type: "object"
     properties:
       id:
-        type: "string"
+        type: string
         example: "bc901483-1e18-4df1-a99d-7d1cb0e6f25f012349"
       number:
-        type: "string"
+        type: string
         example: "PO/VI/0001"
       status:
-        type: "string"
+        type: string
         example: "accepted"
       order_date:
-        type: "string"
+        type: string
         example: "2022-06-29"
       suplier:
         type: "object"
         properties:
           id:
-            type: "string"
+            type: string
             example: "S.00001"
           company_name:
-            type: "string"
+            type: string
             example: "PT.Pakar Digital Global"
           company_email:
-            type: "string"
+            type: string
             example: "pdg.paper@paper.id"
           company_phone:
-            type: "string"
+            type: string
             example : "+622119209102"
           href:
-            type: "string"
+            type: string
             example : "/partners/89e7bf3f-0d81-408c-ad1a-0c5fe490f5db"
           contacts:
             type: "array"
@@ -294,13 +299,13 @@ definitions:
               type: "object"
               properties:
                 name:
-                  type: "string"
+                  type: string
                   example: "John Doe"
                 email:
-                  type: "string"
+                  type: string
                   example: "john@paper.id"
                 phone:
-                  type: "string"
+                  type: string
                   example: "+6289123456789"
           items:
             type: "array"
@@ -308,50 +313,94 @@ definitions:
               type: "object"
               properties:
                 name:
-                  type: "string"
+                  type: string
                   example: "AC LG"
                 code:
-                  type: "string"
+                  type: string
                   example: "SKU0001"
                 description:
-                  type: "string"
+                  type: string
                   example: "Ductless, Mini-Split Air Conditioner"
                 quantity:
-                  type: "string"
+                  type: string
                   example: "1"
                 uom:
-                  type: "string"
+                  type: string
                   example: "pcs"
                 discount:
-                  type: "number"
+                  type: number
                   example: 0
                 price:
-                  type: "number"
+                  type: number
                   example: 1000000
                 tax:
-                  type: "number"
+                  type: number
                   example: 10
                 product_href:
-                  type: "string"
+                  type: string
                   example: "/products/82e69cd1-e66a-4a57-9862-2e4396b1c3ca"
                 additional_info:
                   type: "object"
                   properties:
                     discount_tier:
-                      type: "string"
+                      type: string
                       example: "1"
                     batch_no:
-                      type: "string"
+                      type: string
                       example: "MFG0580"
+          additional_fee:
+            type: "object"
+            properties:
+              delivery_fee:
+                type: number
+                example: 20000
+          total:
+            type: number
+            example: 7060000
+          incoterm:
+            type: string
+            example: "FOB"
+          notes:
+            type: string
+            example: "The order is valid if two parties had agreed"
+          delivery_date:
+            type: string
+            example: "2022-09-30"
+          delivery_address:
+            type: "object"
+            properties:
+              address:
+                type: string
+                example: "Jl. Sunter Garden Raya 5D"
+              city:
+                type: string
+                example: "Jakarta Utara"
+              state:
+                type: string
+                example: "DKI Jakarta"
+              country:
+                type: string
+                example: "Indonesia"
+              zip_code:
+                type: string
+                example: "14350"
+              location:
+                properties:
+                  latitude:
+                    type: number
+                    example: 6.136912345
+                  longitude:
+                    type: number
+                    example: 106.8487123545
 
   ApiRegisterUser:
     type: "object"
     properties:
       status:
-        type: "number"
+        type: number
         example: 200
       message:
-        type: "string"
+        type: string
         example: "User has been Registered"
       user:
         $ref: "#/definitions/RegisterResponseData"
@@ -359,16 +408,16 @@ definitions:
       type: "object"
       properties:
         company_id:
-          type: "string"
+          type: string
           example: "8e482eb9-5d79-4e05-bf29-2f5bc58bb035"
         created_at:
-          type: "string"
+          type: string
           example: "2021-01-01T11:59:59.000Z"
         email:
-          type: "string"
+          type: string
           example: "user123@paper.id"
         emailVerified:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         has_onboarding:
@@ -378,66 +427,66 @@ definitions:
           type: "boolean"
           example: true
         lastname:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         login_attempt:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         login_limit_timestamp:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         name:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         paper_chain_popup:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         password:
-          type: "string"
+          type: string
           example: "$2b$10$VBCxD/f6/olzJw4.wZ0Js.ezRuN/IhRMqDBSd9.dytyYD0Q8BBM7O"
         people_type:
           type: "boolean"
           example: false
         phone:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         photo:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         plain_password:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         realm:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         registered_by:
-          type: "string"          
+          type: string          
           example: "alfiansyahad2"
         remember_token:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         updated_at:
-          type: "string"
+          type: string
           example: "2021-01-01T11:59:59.000Z"
         username:
-          type: "string"
+          type: string
           example: null
           x-nullable: true
         uuid:
-          type: "string"
+          type: string
           example: "6a358f0c-adfe-478d-8c21-086eff7d14a3"
         verificationToken:
-          type: "string"
+          type: string
           example: "s9qk9pfjc27d12p3j2hfxk6hp5l28w5ikoizvp3njlf7rzeucpt"
 
   ApiResponseGetRemainingLimit:
@@ -446,7 +495,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/remainingLimitcSuccessResponse"
@@ -454,19 +503,19 @@ definitions:
     type: "object"
     properties:
       identity_basic:
-        type: "number"
+        type: number
         example: 85
       identity_professional:
-        type: "number"
+        type: number
         example: 99
       income_basic:
-        type: "number"
+        type: number
         example: 89
       income_by_nik:
-        type: "number"
+        type: number
         example: 20
       phone_number:
-        type: "number"
+        type: number
         example: 87
 
   ApiResponseBankAccount:
@@ -475,7 +524,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/bankAccountSuccessResponse"
@@ -489,7 +538,7 @@ definitions:
         type: "boolean"
         example: false
       account_name:
-        type: "string"
+        type: string
         example: john doe
 
   ApiResponsePropertyCount:
@@ -498,7 +547,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/propertyCountSuccessResponse"
@@ -506,7 +555,7 @@ definitions:
     type: "object"
     properties:
       property_count:
-        type: "string"
+        type: string
         example: 2
 
   ApiResponseWorkplace:
@@ -515,7 +564,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/workplaceSuccessResponse"
@@ -532,7 +581,7 @@ definitions:
         type: "boolean"
         example: true
       company_name:
-        type: "string"
+        type: string
         example: true
       company_phone:
         type: "boolean"
@@ -544,7 +593,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/vehicleOwnershipSuccessResponse"
@@ -559,16 +608,16 @@ definitions:
         type: "boolean"
         example: true
       name:
-        type: "string"
+        type: string
         example: 100
       address:
-        type: "string"
+        type: string
         example: 100
       vehicle_brand:
-        type: "string"
+        type: string
         example: 100
       vehicle_type:
-        type: "string"
+        type: string
         example: 100
       vehicle_cylinder:
         type: "boolean"
@@ -580,10 +629,10 @@ definitions:
         type: "boolean"
         example: true
       vehicle_color:
-        type: "string"
+        type: string
         example: 100
       vehicle_year:
-        type: "string"
+        type: string
         example: 100
 
   ApiResponseCompanySk:
@@ -592,7 +641,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/companySkSuccessResponse"
@@ -619,7 +668,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/propertyOwnershipSuccessResponse"
@@ -628,7 +677,7 @@ definitions:
     type: "object"
     properties:
       property_address:
-        type: "string"
+        type: string
         example: "J*l*n J*nd*r*l S*d*rm*n"
       property_owner_name:
         type: "boolean"
@@ -640,10 +689,10 @@ definitions:
         type: "boolean"
         example: true
       property_estimation_value:
-        type: "string"
+        type: string
         example: 500000000
       certificate_address:
-        type: "string"
+        type: string
         example: "J*l*n J*nd*r*l S*d*rm*n"
       certificate_id:
         type: "boolean"
@@ -664,7 +713,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/watchlistInformationSuccessResponse"
@@ -675,46 +724,46 @@ definitions:
       type: "object"
       properties:
         person_entity_id:
-          type: "string"
+          type: string
           example: "3129229"
         full_name:
-          type: "string"
+          type: string
           example: "John Doe"
         first_name:
-          type: "string"
+          type: string
           example: "John"
         middle_name:
-          type: "string"
+          type: string
           example: ""
         surename:
-          type: "string"
+          type: string
           example: "Doe"
         similarity:
           type: "integer"
           example: 92
         birth_date:
-          type: "string"
+          type: string
           example: "1990-01-20"
         source_info:
-          type: "string"
+          type: string
           example: "Dow Jones"
         source_info_code:
-          type: "string"
+          type: string
           example: "DW"
         country_name:
-          type: "string"
+          type: string
           example: "Indonesia"
         occupation_category:
-          type: "string"
+          type: string
           example: "Special Interest Person (SIP)"
         source_info_desc:
-          type: "string"
+          type: string
           example: "Dow Jones"
         image_profile:
-          type: "string"
+          type: string
           example: "https://assets.example.com/crop/0x0:x0/x/photo/2002/12/06/255X0X3868.jpg"
         person_id:
-          type: "string"
+          type: string
           example: "g564xx4b-bxc3-xxfc-a5xx-x0c12xa4b1b0"
 
   ApiResponseIdentityBasic:
@@ -723,7 +772,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/identityBasicSuccessResponse"
@@ -732,16 +781,16 @@ definitions:
     type: "object"
     properties:
       name:
-        type: "number"
+        type: number
         example: 85
       address:
-        type: "number"
+        type: number
         example: 99
       birthdate:
         type: "boolean"
         example: true
       birthplace:
-        type: "number"
+        type: number
         example: 89
 
   ApiResponseIdentityProfessional:
@@ -750,7 +799,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/identityProfessionalSuccessResponse"
@@ -759,19 +808,19 @@ definitions:
     type: "object"
     properties:
       name:
-        type: "number"
+        type: number
         example: 85
       address:
-        type: "number"
+        type: number
         example: 99
       birthdate:
         type: "boolean"
         example: true
       birthplace:
-        type: "number"
+        type: number
         example: 89
       selfie_photo:
-        type: "number"
+        type: number
         example: 95.3
 
   ApiResponseEmail:
@@ -780,7 +829,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/emailSuccessResponse"
@@ -797,7 +846,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/incomeBasicSuccessResponse"
@@ -805,7 +854,7 @@ definitions:
     type: "object"
     properties:
       income:
-        type: "string"
+        type: string
         example: "BELOW"
       name:
         type: "boolean"
@@ -832,7 +881,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/incomeByNIKSuccessResponse"
@@ -840,7 +889,7 @@ definitions:
     type: "object"
     properties:
       income:
-        type: "string"
+        type: string
         example: "BELOW"
       name:
         type: "boolean"
@@ -858,7 +907,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/companyIncomeSuccessResponse"
@@ -869,7 +918,7 @@ definitions:
         type: "boolean"
         example: true
       income:
-        type: "string"
+        type: string
         example: "BELOW"
 
   ApiResponseShareholder:
@@ -878,7 +927,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/shareholderSuccessResponse"
@@ -889,7 +938,7 @@ definitions:
         type: "boolean"
         example: true
       company_name:
-        type: "string"
+        type: string
         example: true
       nik:
         type: "boolean"
@@ -904,7 +953,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/phoneNumberSuccessResponse"
@@ -921,7 +970,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/phoneLifespanSuccessResponse"
@@ -938,7 +987,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/phoneCountSuccessResponse"
@@ -949,7 +998,7 @@ definitions:
         type: "boolean"
         example: true
       total:
-        type: "number"
+        type: number
         example: 4
 
   ApiResponseHomeAddress:
@@ -958,7 +1007,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/homeAddressSuccessResponse"
@@ -966,7 +1015,7 @@ definitions:
     type: "object"
     properties:
       location_percentage:
-        type: "number"
+        type: number
         example: 100
 
   ApiResponseWorkAddress:
@@ -975,7 +1024,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/workAddressSuccessResponse"
@@ -983,7 +1032,7 @@ definitions:
     type: "object"
     properties:
       work_address_percentage:
-        type: "number"
+        type: number
         example: 100
 
   ApiResponseNegativeList:
@@ -992,7 +1041,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/negativeListSuccessResponse"
@@ -1003,7 +1052,7 @@ definitions:
         type: "boolean"
         example: true
       name:
-        type: "string"
+        type: string
         example: "J*H*N *A*H*N"
       birthdate:
         type: "boolean"
@@ -1015,7 +1064,7 @@ definitions:
         type: "object"
         properties:
           status:
-            type: "string"
+            type: string
             example: "Tersangka"
 
   ApiResponseFamilyCard:
@@ -1024,7 +1073,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/familyCardSuccessResponse"
@@ -1041,7 +1090,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/motherNameSuccessResponse"
@@ -1049,7 +1098,7 @@ definitions:
     type: "object"
     properties:
       mother_name:
-        type: "number"
+        type: number
         example: 96
 
 
@@ -1059,7 +1108,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/accountStatementSuccessResponse"
@@ -1067,19 +1116,19 @@ definitions:
     type: "object"
     properties:
       account_name:
-        type: "string"
+        type: string
         example: "Bpk ROBERT NARO ROBERT NARO"
       account_no:
-        type: "string"
+        type: string
         example: "0115476117"
       currency:
-        type: "string"
+        type: string
         example: "IDR"
       balance:
-        type: "number"
+        type: number
         example: "15000000"
       branch:
-        type: "string"
+        type: string
         example: "KCP Anda"
       transactions:
         type: "array"
@@ -1087,16 +1136,16 @@ definitions:
           type: "object"
           properties:
             date:
-              type: "string"
+              type: string
               example: "2010-05-31"
             info:
-              type: "string"
+              type: string
               example: "TRANSFER DARI 00000000115476151"
             mutation:
-              type: "string"
+              type: string
               example: "1000.002"
             type:
-              type: "string"
+              type: string
               example: "C"
 
   ApiResponseAccountStatementResult:
@@ -1105,7 +1154,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
   accountStatementResultSuccessResponse:
     type: "array"
@@ -1113,25 +1162,25 @@ definitions:
       type: "object"
       properties:
         id:
-          type: "number"
+          type: number
           example: 1
         app_id:
-          type: "number"
+          type: number
           example: 1
         account_no:
-          type: "string"
+          type: string
           example: "019324887134"
         customer_name:
-          type: "string"
+          type: string
           example: "Galih Hardiyan"
         balance:
-          type: "number"
+          type: number
           example: 1484250
         sign_up_dt:
-          type: "string"
+          type: string
           example: "2021-07-05"
         last_update:
-          type: "string"
+          type: string
           example: "2021-07-06 03:34:38"
 
   ApiResponseAccountStatementResultDetail:
@@ -1140,7 +1189,7 @@ definitions:
       success:
         type: "boolean"
       message:
-        type: "string"
+        type: string
         example: "success"
       data:
         $ref: "#/definitions/accountStatementResultDetailSuccessResponse"
@@ -1148,16 +1197,16 @@ definitions:
     type: "object"
     properties:
       id:
-        type: "number"
+        type: number
         example: 1
       app_id:
-        type: "number"
+        type: number
         example: 1
       account_no:
-        type: "string"
+        type: string
         example: "019324887134"
       account_name:
-        type: "string"
+        type: string
         example: "Galih Hardiyan"
       transactions:
         type: "array"
@@ -1165,16 +1214,16 @@ definitions:
           type: "object"
           properties:
             date:
-              type: "string"
+              type: string
               example: "2010-05-31"
             info:
-              type: "string"
+              type: string
               example: "TRANSFER DARI 00000000115476151"
             mutation:
-              type: "string"
+              type: string
               example: "1000.002"
             type:
-              type: "string"
+              type: string
               example: "C"
   errorResponse:
     type: "object"
@@ -1214,6 +1263,6 @@ definitions:
         example: "Data not found"
 
 # external docs will show between info and Authentication
-externalDocs:
-  description: "Find out more about Paper id"
-  url: "https://paper.id"
+# externalDocs:
+#   description: "Find out more about Paper id"
+#   url: "https://paper.id"

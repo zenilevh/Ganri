@@ -65,18 +65,18 @@ const theme = {
     labelsTextSize: '0.9em',
     nestingSpacing: '1em',
     nestedBackground: '#fafafa',
-    typeNameColor: 'white',
+    typeNameColor: 'black',
     arrow: {
       size: '1.1em',
     },
   },
   typography: {
-    fontSize: '14px',
+    fontSize: '15px',
     lineHeight: '1.5em',
     fontWeightRegular: '400',
     fontWeightBold: '600',
     fontWeightLight: '300',
-    fontFamily: 'Helvetica',
+    fontFamily: 'Lato , sans-serif',
     smoothing: 'antialiased',
     optimizeSpeed: true,
     headings: {
@@ -97,7 +97,7 @@ const theme = {
   },
   sidebar: {
     width: '260px',
-    backgroundColor: '#fafafa',
+    backgroundColor: '#f3fafd',
     borderRadius: '20px',
     textColor: '#333333',
     groupItems: {
@@ -114,7 +114,7 @@ const theme = {
     gutter: '2px',
   },
   rightPanel: {
-    backgroundColor: '#50A1F8',
+    backgroundColor: '#2196F3',
     width: '40%',
     textColor: '#ffffff',
   },

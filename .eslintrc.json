@@ -6,6 +6,8 @@
   },
   "rules": {
     "linebreak-style": 0,
+    "no-restricted-syntax": "off",
+    "semi": "error",
     "react/jsx-filename-extension": [
       1,
       {
@@ -15,5 +17,5 @@
         ]
       }
     ]
-  }
+  },
 }

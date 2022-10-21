@@ -7,10 +7,44 @@
     color:rgb(221, 61, 61) !important;
 }
 .token.keyword{
-    color: rgb(174, 129, 255) !important;
+    color: rgb(55, 64, 194) !important;
 }
 .token.boolean{
     color: rgb(246, 138, 158) !important;
+}
+
+/* Header */
+.api-info{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: solid 1px gray;
+    padding-bottom: 1rem !important;
+}
+.api-content  > div:first-of-type {
+    padding: 0rem;
+}
+
+.api-info h1{
+    font-size: xx-large;
+    margin: 0 !important;
+}
+.api-info p a{
+    font-size: large;
+    padding: 10px 30px;
+    border-radius: 5px;
+    background-color: #4195d5;
+    color: white;
+    text-align: end;
+}
+
+.api-info > div:not(:first-of-type){
+ display: none;
+}
+
+/* content */
+div[data-section-id="section/Introduction"]{
+    padding-top: 0px;
 }
 
 /* Sidenav Searchbar */
@@ -42,18 +76,13 @@ div[role="search"] {
 }
 
 /* SideBar */
-div[role="menu-content"]{
-    border-right: 2px;
+div .menu-content{
+    border-right: #dfeef5 solid 2px !important;
 }
 
 .scrollbar-container {
     margin-left: 0px !important;
     border-right: 2px;
-}
-
-label[role="menuitem"]{
-   border-radius: 5px;
-   margin: 1px;
 }
 
 div[role="search"] > input {
