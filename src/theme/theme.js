@@ -65,6 +65,7 @@ const theme = {
     labelsTextSize: '0.9em',
     nestingSpacing: '1em',
     nestedBackground: '#fafafa',
+    typeNameColor: 'white',
     arrow: {
       size: '1.1em',
     },
@@ -113,7 +114,7 @@ const theme = {
     gutter: '2px',
   },
   rightPanel: {
-    backgroundColor: '#50A1D8',
+    backgroundColor: '#50A1F8',
     width: '40%',
     textColor: '#ffffff',
   },

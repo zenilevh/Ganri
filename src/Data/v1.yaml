@@ -1,6 +1,13 @@
 ---
-swagger: "2.0"
+swagger: '2.0'
 # info will be displayed on first page
+servers:
+  - url: //open-api.devel.paper.id/
+    description: Production server
+
+schemes:
+  - "https"
+
 info:
   x-logo:
     url: "https://paper.id/img/paperlogofinal.svg"
@@ -86,15 +93,19 @@ info:
 
     <strong>IMPORTANT: You can also directly register from our interface via</strong> https://paper.id/webappv1/#/register
 
+    <strong>CAUTION</strong>: If a partner already exists with the id, its metadata will be updated with the one in.
+
   version: "1.0.0"
-  title: "PAPER ID - Open API"
+  title: "Paper id API Docs"
+  termsOfService: 'http://paper.id/terms/'
+  contact:
+    name: API Support PaperID
+    email: support@paper.id
+    url: https://bitbucket.com/paper/redocly
+  license:
+    name: Testing 1.0
+    url: 'https://github.com/zenilevh/Ganri'
 
-servers:
-  - url: //open-api.devel.paper.id/
-    description: Production server
-
-schemes:
-  - "https"
 
 paths:
   /v1/purchase-orders/{{order_id}}:
@@ -243,68 +254,95 @@ definitions:
         example: "success"
       data:
         $ref: "#/definitions/PurchaseOrderSingleResponseData"
+  
   PurchaseOrderSingleResponseData:
-    items:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          example: "bc901483-1e18-4df1-a99d-7d1cb0e6f25f012349"
-        number:
-          type: "string"
-          example: "PO/VI/0001"
-        status:
-          type: "string"
-          example: "accepted"
-        order_date:
-          type: "string"
-          example: "2022-06-29"
-        suplier:
-          type: "object"
-          properties:
-            id:
-              type: "string"
-              example: "S.00001"
-            company_name:
-              type: "string"
-              example: "PT.Pakar Digital Global"
-            company_email:
-              type: "string"
-              example: "pdg.paper@paper.id"
-            company_phone:
-              type: "string"
-              example : "+622119209102"
-            href:
-              type: "string"
-              example : "/partners/89e7bf3f-0d81-408c-ad1a-0c5fe490f5db"
-            contacts:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  name:
-                    type: "string"
-                    example: "John Doe"
-                  email:
-                    type: "string"
-                    example: "john@paper.id"
-                  phone:
-                    type: "string"
-                    example: "+6289123456789"
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "bc901483-1e18-4df1-a99d-7d1cb0e6f25f012349"
+      number:
+        type: "string"
+        example: "PO/VI/0001"
+      status:
+        type: "string"
+        example: "accepted"
+      order_date:
+        type: "string"
+        example: "2022-06-29"
+      suplier:
+        type: "object"
+        properties:
+          id:
+            type: "string"
+            example: "S.00001"
+          company_name:
+            type: "string"
+            example: "PT.Pakar Digital Global"
+          company_email:
+            type: "string"
+            example: "pdg.paper@paper.id"
+          company_phone:
+            type: "string"
+            example : "+622119209102"
+          href:
+            type: "string"
+            example : "/partners/89e7bf3f-0d81-408c-ad1a-0c5fe490f5db"
+          contacts:
+            type: "array"
             items:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  name:
-                    type: "string"
-                    example: "John Doe"
-                  email:
-                    type: "string"
-                    example: "john@paper.id"
-                  phone:
-                    type: "string"
-                    example: "+6289123456789"
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+                  example: "John Doe"
+                email:
+                  type: "string"
+                  example: "john@paper.id"
+                phone:
+                  type: "string"
+                  example: "+6289123456789"
+          items:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+                  example: "AC LG"
+                code:
+                  type: "string"
+                  example: "SKU0001"
+                description:
+                  type: "string"
+                  example: "Ductless, Mini-Split Air Conditioner"
+                quantity:
+                  type: "string"
+                  example: "1"
+                uom:
+                  type: "string"
+                  example: "pcs"
+                discount:
+                  type: "number"
+                  example: 0
+                price:
+                  type: "number"
+                  example: 1000000
+                tax:
+                  type: "number"
+                  example: 10
+                product_href:
+                  type: "string"
+                  example: "/products/82e69cd1-e66a-4a57-9862-2e4396b1c3ca"
+                additional_info:
+                  type: "object"
+                  properties:
+                    discount_tier:
+                      type: "string"
+                      example: "1"
+                    batch_no:
+                      type: "string"
+                      example: "MFG0580"
 
   ApiRegisterUser:
     type: "object"
